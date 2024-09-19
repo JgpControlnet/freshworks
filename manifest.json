@@ -1,0 +1,21 @@
+{
+  "platform-version": "2.3",
+  "product": {
+    "freshworks_crm": {
+      "location": {      
+        "deal_entity_menu": {
+          "url": "index.html",
+          "icon": "styles/images/icon.svg"
+        }
+      },
+      "requests": {
+        "getData": {}
+      }
+    }
+  },
+  "engines": {
+    "node": "18.18.2",
+    "fdk": "9.2.0"
+  }
+}
+
