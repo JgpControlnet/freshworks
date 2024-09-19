@@ -25,7 +25,7 @@ async function openModal() {
   );
       try {
         let data = await client.request.invokeTemplate("getData", {})
-        console.log(data)
+        console.log(data.response)
         // console.log(JSON.stringify(data))
       } catch (err) {
         console.log(err)

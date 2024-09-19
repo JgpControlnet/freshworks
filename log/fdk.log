@@ -903,3 +903,120 @@ Require stack:
 2024-09-19 15:10:52.346 +0200 [error] [31m✖[39m validation failed
 2024-09-19 15:10:52.346 +0200 [error] 
 2024-09-19 15:10:52.365 +0200 [debug] ([34mreport.js[0m) [31mGenerating hash for report.json file[0m
+2024-09-19 15:11:49.906 +0200 [debug] ([34mconfigs.js[0m) [31mloaded default configs as "{"updates":{"manifest_url":"https://cdn.freshdev.io/assets/fdk/updates.json","period":24},"log":{"level":"info"},"javascript":{"ecma_version":2020},"request":{"timeout":15000},"global_apps":{"enabled":false},"easel":{"enabled":false}}"[0m
+2024-09-19 15:11:49.908 +0200 [debug] ([34mfile.js[0m) [31mError while requiring C:\Users\javier.galvan\.fdk\configs.json: Cannot find module 'C:\Users\javier.galvan\.fdk\configs.json'
+Require stack:
+- C:\Users\javier.galvan\AppData\Roaming\nvm\v18.18.2\node_modules\fdk\lib\utils\file.js
+- C:\Users\javier.galvan\AppData\Roaming\nvm\v18.18.2\node_modules\fdk\lib\configs.js
+- C:\Users\javier.galvan\AppData\Roaming\nvm\v18.18.2\node_modules\fdk\lib\logger.js
+- C:\Users\javier.galvan\AppData\Roaming\nvm\v18.18.2\node_modules\fdk\index.js[0m
+2024-09-19 15:11:49.908 +0200 [debug] ([34mconfigs.js[0m) [31mloaded global configs as "{}"[0m
+2024-09-19 15:11:49.909 +0200 [debug] ([34mconfigs.js[0m) [31mloaded local configs as "{"request":{"timeout":15000}}"[0m
+2024-09-19 15:11:49.909 +0200 [debug] ([34mconfigs.js[0m) [31mloaded env configs as "{"updates":{},"log":{},"javascript":{},"request":{"timeout":15000}}"[0m
+2024-09-19 15:11:49.909 +0200 [debug] ([34mconfigs.js[0m) [31mloaded resolved configs as "{"updates":{"manifest_url":"https://cdn.freshdev.io/assets/fdk/updates.json","period":24},"log":{"level":"info"},"javascript":{"ecma_version":2020},"request":{"timeout":15000},"global_apps":{"enabled":false},"easel":{"enabled":false}}"[0m
+2024-09-19 15:11:49.909 +0200 [debug] ([34mlogger.js[0m) [31mStarting FDK in node v18.18.2 on win32[0m
+2024-09-19 15:11:49.909 +0200 [debug] ([34msequelize.js[0m) [31msetting up sqilite at "C:\Users\javier.galvan\Desktop\Freshworks/.fdk/store.sqlite"[0m
+2024-09-19 15:11:49.909 +0200 [debug] ([34mdata.js[0m) [31mRead {"version_details":{"cli":{"deprecated":{"version":"<9","message":"This FDK version has been deprecated. There will be no further feature updates to this version. For a seamless app-building experience, ensure to move to the latest FDK version. For more information, see https://developers.freshworks.com/docs/app-sdk/v2.3/freshdesk/migration-guide/#migrate-to-the-latest-platform-version."},"forced":{"version":"7.0.0","command":"npm install https://dl.freshdev.io/cli/fdk-7.0.0.tgz -g","message":"Your FDK version has been forced updated to v7.0.0, please visit https://community.developers.freshworks.com/t/fdk-v7-0-announcing-node-js-v12-and-es6-support/3606 to know more"},"latest":{"version":"9.2.0","command":"npm install https://cdn.freshdev.io/fdk/latest.tgz -g","message":"You are on the latest FDK version. For information on the features available as part of this FDK version, see https://developers.freshworks.com/docs/?tab=modules."}},"addon":{"version":"2.0.4","url":"https://cdn.freshdev.io/assets/fdk/addons/addon.zip"}},"last_updated":{"time_stamp":1726743584253}}[0m
+2024-09-19 15:11:49.910 +0200 [debug] ([34mupdater.js[0m) [31mlast check less than 24 hours ago, not looking for updates[0m
+2024-09-19 15:11:49.914 +0200 [debug] ([34mindex.js[0m) [31mrunning with opts {}[0m
+2024-09-19 15:11:50.219 +0200 [debug] ([34mdata.js[0m) [31mRead {"version_details":{"cli":{"deprecated":{"version":"<9","message":"This FDK version has been deprecated. There will be no further feature updates to this version. For a seamless app-building experience, ensure to move to the latest FDK version. For more information, see https://developers.freshworks.com/docs/app-sdk/v2.3/freshdesk/migration-guide/#migrate-to-the-latest-platform-version."},"forced":{"version":"7.0.0","command":"npm install https://dl.freshdev.io/cli/fdk-7.0.0.tgz -g","message":"Your FDK version has been forced updated to v7.0.0, please visit https://community.developers.freshworks.com/t/fdk-v7-0-announcing-node-js-v12-and-es6-support/3606 to know more"},"latest":{"version":"9.2.0","command":"npm install https://cdn.freshdev.io/fdk/latest.tgz -g","message":"You are on the latest FDK version. For information on the features available as part of this FDK version, see https://developers.freshworks.com/docs/?tab=modules."}},"addon":{"version":"2.0.4","url":"https://cdn.freshdev.io/assets/fdk/addons/addon.zip"}},"last_updated":{"time_stamp":1726743584253}}[0m
+2024-09-19 15:11:50.222 +0200 [debug] ([34mmanifest.js[0m) [31mReloading manifest with {"platform-version":"2.3","product":{"freshworks_crm":{"location":{"deal_entity_menu":{"url":"index.html","icon":"styles/images/icon.svg"}},"requests":{"getData":{}}}},"engines":{"node":"18.18.2","fdk":"9.2.0"}}.[0m
+2024-09-19 15:11:50.222 +0200 [debug] ([34mmanifest.js[0m) [31mInferred db as features.[0m
+2024-09-19 15:11:50.240 +0200 [debug] ([34mdata.js[0m) [31mRead {"version_details":{"cli":{"deprecated":{"version":"<9","message":"This FDK version has been deprecated. There will be no further feature updates to this version. For a seamless app-building experience, ensure to move to the latest FDK version. For more information, see https://developers.freshworks.com/docs/app-sdk/v2.3/freshdesk/migration-guide/#migrate-to-the-latest-platform-version."},"forced":{"version":"7.0.0","command":"npm install https://dl.freshdev.io/cli/fdk-7.0.0.tgz -g","message":"Your FDK version has been forced updated to v7.0.0, please visit https://community.developers.freshworks.com/t/fdk-v7-0-announcing-node-js-v12-and-es6-support/3606 to know more"},"latest":{"version":"9.2.0","command":"npm install https://cdn.freshdev.io/fdk/latest.tgz -g","message":"You are on the latest FDK version. For information on the features available as part of this FDK version, see https://developers.freshworks.com/docs/?tab=modules."}},"addon":{"version":"2.0.4","url":"https://cdn.freshdev.io/assets/fdk/addons/addon.zip"}},"last_updated":{"time_stamp":1726743584253}}[0m
+2024-09-19 15:11:51.557 +0200 [debug] ([34mdata.js[0m) [31mRead {"version_details":{"cli":{"deprecated":{"version":"<9","message":"This FDK version has been deprecated. There will be no further feature updates to this version. For a seamless app-building experience, ensure to move to the latest FDK version. For more information, see https://developers.freshworks.com/docs/app-sdk/v2.3/freshdesk/migration-guide/#migrate-to-the-latest-platform-version."},"forced":{"version":"7.0.0","command":"npm install https://dl.freshdev.io/cli/fdk-7.0.0.tgz -g","message":"Your FDK version has been forced updated to v7.0.0, please visit https://community.developers.freshworks.com/t/fdk-v7-0-announcing-node-js-v12-and-es6-support/3606 to know more"},"latest":{"version":"9.2.0","command":"npm install https://cdn.freshdev.io/fdk/latest.tgz -g","message":"You are on the latest FDK version. For information on the features available as part of this FDK version, see https://developers.freshworks.com/docs/?tab=modules."}},"addon":{"version":"2.0.4","url":"https://cdn.freshdev.io/assets/fdk/addons/addon.zip"}},"last_updated":{"time_stamp":1726743584253}}[0m
+2024-09-19 15:11:52.812 +0200 [debug] ([34mvalidate.js[0m) [31masked to skip the following validations, [0m
+2024-09-19 15:11:52.813 +0200 [debug] ([34mvalidate.js[0m) [31mrunning validator actions[0m
+2024-09-19 15:11:52.813 +0200 [debug] ([34mvalidate.js[0m) [31mrunning validator requests[0m
+2024-09-19 15:11:52.813 +0200 [debug] ([34mrequests.js[0m) [31mvalidating request template for "getData"[0m
+2024-09-19 15:11:52.813 +0200 [debug] ([34mvalidate.js[0m) [31mrunning validator app-dir[0m
+2024-09-19 15:11:52.815 +0200 [debug] ([34mvalidate.js[0m) [31mrunning validator config-dir[0m
+2024-09-19 15:11:52.815 +0200 [debug] ([34mconfig-dir.js[0m) [31mChecking to see if C:\Users\javier.galvan\Desktop\Freshworks/config/ exists.[0m
+2024-09-19 15:11:52.815 +0200 [debug] ([34mconfig-dir.js[0m) [31mFetched the following config files iparams.json,requests.json[0m
+2024-09-19 15:11:52.815 +0200 [debug] ([34mvalidate.js[0m) [31mrunning validator custom-objects[0m
+2024-09-19 15:11:52.815 +0200 [debug] ([34mvalidate.js[0m) [31mrunning validator event[0m
+2024-09-19 15:11:52.815 +0200 [debug] ([34mvalidate.js[0m) [31mrunning validator iparam[0m
+2024-09-19 15:11:52.818 +0200 [debug] ([34mvalidate.js[0m) [31mrunning validator lint[0m
+2024-09-19 15:11:52.818 +0200 [debug] ([34mlint.js[0m) [31mpassed fix flag: undefined[0m
+2024-09-19 15:11:52.821 +0200 [debug] ([34mlint.js[0m) [31mRunning the following lints on the file app\scripts\app.js : no-caller,no-process-env,complexity,max-nested-callbacks,handle-callback-err,no-eval,no-alert,no-debugger,no-unreachable,no-unpkg-cdn,no-unhandled-promise,no-logging-rejections,no-non-client-request-model,no-deprecated-apis,no-proxy-requests,no-cross-scope-assign,no-empty-function,no-unused-vars[0m
+2024-09-19 15:11:52.880 +0200 [debug] ([34mvalidate.js[0m) [31mrunning validator manifest[0m
+2024-09-19 15:11:52.881 +0200 [debug] ([34mvalidate.js[0m) [31mskipping validator manifest-dependency[0m
+2024-09-19 15:11:52.881 +0200 [debug] ([34mvalidate.js[0m) [31mrunning validator oauth[0m
+2024-09-19 15:11:52.881 +0200 [debug] ([34mvalidate.js[0m) [31mskipping validator pkgsize[0m
+2024-09-19 15:11:52.881 +0200 [debug] ([34mvalidate.js[0m) [31mrunning validator schema[0m
+2024-09-19 15:11:52.881 +0200 [debug] ([34mvalidate.js[0m) [31mrunning validator version-check[0m
+2024-09-19 15:11:52.882 +0200 [debug] ([34mvalidate.js[0m) [31mrunning validator app-settings[0m
+2024-09-19 15:11:52.892 +0200 [debug] ([34mwatcher.js[0m) [31mPreparing to watch the following files ./app,./config,./manifest.json[0m
+2024-09-19 15:11:52.897 +0200 [debug] ([34mdata.js[0m) [31mRead {"report_hash":"d3df0ccfe2aa86c783c24cd82421884f995dfb4b5feee3f7792d1747d29ae9e8"}[0m
+2024-09-19 15:11:52.897 +0200 [debug] ([34mcustom-objects.js[0m) [31mto force or not? undefined[0m
+2024-09-19 15:11:52.897 +0200 [debug] ([34mcustom-objects.js[0m) [31mbeginning to re-sync db[0m
+2024-09-19 15:11:53.156 +0200 [debug] ([34mindex.js[0m) [31mloading model at "C:\Users\javier.galvan\AppData\Roaming\nvm\v18.18.2\node_modules\fdk\lib\models\bigint-pivot.js"[0m
+2024-09-19 15:11:53.159 +0200 [debug] ([34mindex.js[0m) [31mloading model at "C:\Users\javier.galvan\AppData\Roaming\nvm\v18.18.2\node_modules\fdk\lib\models\entity-field-choice.js"[0m
+2024-09-19 15:11:53.160 +0200 [debug] ([34mindex.js[0m) [31mloading model at "C:\Users\javier.galvan\AppData\Roaming\nvm\v18.18.2\node_modules\fdk\lib\models\entity-field.js"[0m
+2024-09-19 15:11:53.161 +0200 [debug] ([34mindex.js[0m) [31mloading model at "C:\Users\javier.galvan\AppData\Roaming\nvm\v18.18.2\node_modules\fdk\lib\models\entity.js"[0m
+2024-09-19 15:11:53.162 +0200 [debug] ([34mindex.js[0m) [31mloading model at "C:\Users\javier.galvan\AppData\Roaming\nvm\v18.18.2\node_modules\fdk\lib\models\record.js"[0m
+2024-09-19 15:11:53.163 +0200 [debug] ([34mindex.js[0m) [31mloading model at "C:\Users\javier.galvan\AppData\Roaming\nvm\v18.18.2\node_modules\fdk\lib\models\string-pivot.js"[0m
+2024-09-19 15:11:53.182 +0200 [debug] ([34mdata.js[0m) [31mRead {"report_hash":"d3df0ccfe2aa86c783c24cd82421884f995dfb4b5feee3f7792d1747d29ae9e8"}[0m
+2024-09-19 15:11:53.182 +0200 [debug] ([34mcustom-objects.js[0m) [31mupdated local store with latest entity hash[0m
+2024-09-19 15:11:53.184 +0200 [info] Starting local testing server at http://*:10001/    
+Append 'dev=true' to your Freshworks_crm account URL to start testing    
+e.g. https://domain.myfreshworks.com/crm/sales/contacts/2007663673?dev=true    
+Quit the server with Control-C.
+2024-09-19 15:11:57.516 +0200 [debug] ([34miframe.js[0m) [31mResponding with contents of /index.html[0m
+2024-09-19 15:11:57.533 +0200 [debug] ([34miframe.js[0m) [31mResponding with contents of /scripts/app.js[0m
+2024-09-19 15:11:57.534 +0200 [debug] ([34mcoverage.js[0m) [31mInstrumenting C:\Users\javier.galvan\Desktop\Freshworks\app\scripts\app.js[0m
+2024-09-19 15:11:59.240 +0200 [debug] ([34mdata-pipe.js[0m) [31mreceived call for route "request" with action "execute" and body {"action":"execute","data":{"name":"getData","isOAuth":true}}[0m
+2024-09-19 15:11:59.246 +0200 [debug] ([34mdata.js[0m) [31mRead {"report_hash":"d3df0ccfe2aa86c783c24cd82421884f995dfb4b5feee3f7792d1747d29ae9e8"}[0m
+2024-09-19 15:11:59.246 +0200 [debug] ([34mdata.js[0m) [31mRead {"report_hash":"d3df0ccfe2aa86c783c24cd82421884f995dfb4b5feee3f7792d1747d29ae9e8"}[0m
+2024-09-19 15:11:59.247 +0200 [debug] ([34mdata.js[0m) [31mRead {"report_hash":"d3df0ccfe2aa86c783c24cd82421884f995dfb4b5feee3f7792d1747d29ae9e8"}[0m
+2024-09-19 15:11:59.252 +0200 [debug] ([34mrequest.js[0m) [31mMaking request with options as {"method":"GET","url":"https://fake-json-api.mock.beeceptor.com/users","headers":{"Authorization":"Token token=ibp6o4rZYuu33aq6botXlQ","Content-Type":"application/json"},"body":null,"maxAttempts":1,"retryDelay":0,"timeout":15000,"skipHeaderSanitize":true}[0m
+2024-09-19 15:11:59.390 +0200 [debug] ([34miframe.js[0m) [31mResponding with contents of /views/modal.html[0m
+2024-09-19 15:11:59.408 +0200 [debug] ([34miframe.js[0m) [31mResponding with contents of /scripts/app.js[0m
+2024-09-19 15:11:59.409 +0200 [debug] ([34mcoverage.js[0m) [31mInstrumenting C:\Users\javier.galvan\Desktop\Freshworks\app\scripts\app.js[0m
+2024-09-19 15:11:59.674 +0200 [debug] ([34mcoverage.js[0m) [31mWriting coverage.[0m
+2024-09-19 15:11:59.949 +0200 [debug] ([34mrequest.js[0m) [31mLooking for "application/json" in application/json,application/xml,text/html,text/xml,application/jsonp,text/plain,application/javascript,application/vnd.api+json[0m
+2024-09-19 15:12:01.470 +0200 [debug] ([34mcoverage.js[0m) [31mWriting coverage.[0m
+2024-09-19 15:12:01.687 +0200 [debug] ([34mcoverage.js[0m) [31mWriting coverage.[0m
+2024-09-19 15:12:13.594 +0200 [debug] ([34mdata-pipe.js[0m) [31mreceived call for route "request" with action "execute" and body {"action":"execute","data":{"name":"getData","isOAuth":true}}[0m
+2024-09-19 15:12:13.597 +0200 [debug] ([34mdata.js[0m) [31mRead {"report_hash":"d3df0ccfe2aa86c783c24cd82421884f995dfb4b5feee3f7792d1747d29ae9e8"}[0m
+2024-09-19 15:12:13.598 +0200 [debug] ([34mdata.js[0m) [31mRead {"report_hash":"d3df0ccfe2aa86c783c24cd82421884f995dfb4b5feee3f7792d1747d29ae9e8"}[0m
+2024-09-19 15:12:13.599 +0200 [debug] ([34mdata.js[0m) [31mRead {"report_hash":"d3df0ccfe2aa86c783c24cd82421884f995dfb4b5feee3f7792d1747d29ae9e8"}[0m
+2024-09-19 15:12:13.601 +0200 [debug] ([34mrequest.js[0m) [31mMaking request with options as {"method":"GET","url":"https://fake-json-api.mock.beeceptor.com/users","headers":{"Authorization":"Token token=ibp6o4rZYuu33aq6botXlQ","Content-Type":"application/json"},"body":null,"maxAttempts":1,"retryDelay":0,"timeout":15000,"skipHeaderSanitize":true}[0m
+2024-09-19 15:12:13.677 +0200 [debug] ([34mcoverage.js[0m) [31mWriting coverage.[0m
+2024-09-19 15:12:13.768 +0200 [debug] ([34miframe.js[0m) [31mResponding with contents of /views/modal.html[0m
+2024-09-19 15:12:13.784 +0200 [debug] ([34miframe.js[0m) [31mResponding with contents of /scripts/app.js[0m
+2024-09-19 15:12:13.787 +0200 [debug] ([34mcoverage.js[0m) [31mInstrumenting C:\Users\javier.galvan\Desktop\Freshworks\app\scripts\app.js[0m
+2024-09-19 15:12:14.241 +0200 [debug] ([34mrequest.js[0m) [31mLooking for "application/json" in application/json,application/xml,text/html,text/xml,application/jsonp,text/plain,application/javascript,application/vnd.api+json[0m
+2024-09-19 15:12:15.682 +0200 [debug] ([34mcoverage.js[0m) [31mWriting coverage.[0m
+2024-09-19 15:12:15.858 +0200 [debug] ([34mcoverage.js[0m) [31mWriting coverage.[0m
+2024-09-19 15:12:40.914 +0200 [debug] ([34mwatcher.js[0m) [31mBroadcasted "{"file":"config\\requests.json"}" to all listeners.[0m
+2024-09-19 15:12:40.920 +0200 [debug] ([34miframe.js[0m) [31mResponding with contents of /index.html[0m
+2024-09-19 15:12:40.922 +0200 [debug] ([34miframe.js[0m) [31mResponding with contents of /views/modal.html[0m
+2024-09-19 15:12:40.936 +0200 [debug] ([34miframe.js[0m) [31mResponding with contents of /scripts/app.js[0m
+2024-09-19 15:12:40.937 +0200 [debug] ([34mcoverage.js[0m) [31mInstrumenting C:\Users\javier.galvan\Desktop\Freshworks\app\scripts\app.js[0m
+2024-09-19 15:12:40.975 +0200 [debug] ([34miframe.js[0m) [31mResponding with contents of /scripts/app.js[0m
+2024-09-19 15:12:40.976 +0200 [debug] ([34mcoverage.js[0m) [31mInstrumenting C:\Users\javier.galvan\Desktop\Freshworks\app\scripts\app.js[0m
+2024-09-19 15:12:43.025 +0200 [debug] ([34mcoverage.js[0m) [31mWriting coverage.[0m
+2024-09-19 15:12:44.023 +0200 [debug] ([34mcoverage.js[0m) [31mWriting coverage.[0m
+2024-09-19 15:25:22.742 +0200 [debug] ([34mdata-pipe.js[0m) [31mreceived call for route "request" with action "execute" and body {"action":"execute","data":{"name":"getData","isOAuth":true}}[0m
+2024-09-19 15:25:22.744 +0200 [debug] ([34mdata.js[0m) [31mRead {"report_hash":"d3df0ccfe2aa86c783c24cd82421884f995dfb4b5feee3f7792d1747d29ae9e8"}[0m
+2024-09-19 15:25:22.745 +0200 [debug] ([34mdata.js[0m) [31mRead {"report_hash":"d3df0ccfe2aa86c783c24cd82421884f995dfb4b5feee3f7792d1747d29ae9e8"}[0m
+2024-09-19 15:25:22.746 +0200 [debug] ([34mdata.js[0m) [31mRead {"report_hash":"d3df0ccfe2aa86c783c24cd82421884f995dfb4b5feee3f7792d1747d29ae9e8"}[0m
+2024-09-19 15:25:22.749 +0200 [debug] ([34mrequest.js[0m) [31mMaking request with options as {"method":"GET","url":"https://fake-json-api.mock.beeceptor.com/users","headers":{"Authorization":"Token token=ibp6o4rZYuu33aq6botXlQ","Content-Type":"application/json"},"body":null,"maxAttempts":1,"retryDelay":0,"timeout":15000,"skipHeaderSanitize":true}[0m
+2024-09-19 15:25:22.950 +0200 [debug] ([34miframe.js[0m) [31mResponding with contents of /views/modal.html[0m
+2024-09-19 15:25:22.966 +0200 [debug] ([34miframe.js[0m) [31mResponding with contents of /scripts/app.js[0m
+2024-09-19 15:25:22.967 +0200 [debug] ([34mcoverage.js[0m) [31mInstrumenting C:\Users\javier.galvan\Desktop\Freshworks\app\scripts\app.js[0m
+2024-09-19 15:25:22.998 +0200 [debug] ([34mcoverage.js[0m) [31mWriting coverage.[0m
+2024-09-19 15:25:23.338 +0200 [debug] ([34mrequest.js[0m) [31mLooking for "application/json" in application/json,application/xml,text/html,text/xml,application/jsonp,text/plain,application/javascript,application/vnd.api+json[0m
+2024-09-19 15:25:24.988 +0200 [debug] ([34mcoverage.js[0m) [31mWriting coverage.[0m
+2024-09-19 15:25:25.003 +0200 [debug] ([34mcoverage.js[0m) [31mWriting coverage.[0m
+2024-09-19 15:25:36.836 +0200 [debug] ([34mwatcher.js[0m) [31mBroadcasted "{"file":"app\\scripts\\app.js"}" to all listeners.[0m
+2024-09-19 15:25:36.841 +0200 [debug] ([34miframe.js[0m) [31mResponding with contents of /index.html[0m
+2024-09-19 15:25:36.843 +0200 [debug] ([34miframe.js[0m) [31mResponding with contents of /views/modal.html[0m
+2024-09-19 15:25:36.856 +0200 [debug] ([34miframe.js[0m) [31mResponding with contents of /scripts/app.js[0m
+2024-09-19 15:25:36.857 +0200 [debug] ([34mcoverage.js[0m) [31mInstrumenting C:\Users\javier.galvan\Desktop\Freshworks\app\scripts\app.js[0m
+2024-09-19 15:25:36.902 +0200 [debug] ([34miframe.js[0m) [31mResponding with contents of /scripts/app.js[0m
+2024-09-19 15:25:36.902 +0200 [debug] ([34mcoverage.js[0m) [31mInstrumenting C:\Users\javier.galvan\Desktop\Freshworks\app\scripts\app.js[0m
+2024-09-19 15:25:38.920 +0200 [debug] ([34mcoverage.js[0m) [31mWriting coverage.[0m
+2024-09-19 15:25:38.937 +0200 [debug] ([34mcoverage.js[0m) [31mWriting coverage.[0m
+2024-09-19 15:25:40.078 +0200 [info] 
+NOTE: We recommend a coverage of 80% for apps that are to be published in the public marketplace.
