@@ -19,3 +19,43 @@ section {
   padding: 1rem;
   font-family: sans-serif;
 }
+
+.content_div{
+  display: flex;
+  flex-direction: column;
+  border: 1px solid black;
+  margin-bottom: 5px;
+  padding: 10px;
+}
+
+.sectionTitle{
+  width: 80%;
+}
+.quotesTitle{
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  button{
+    height: 50px;
+  }
+}
+
+.form{
+  display: flex;
+  gap: 10px;
+}
+
+table {
+  margin-top: 15px;
+  width: 100%;
+  border-collapse: collapse;
+}
+th, td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+}
+th {
+  background-color: #f4f4f4;
+}

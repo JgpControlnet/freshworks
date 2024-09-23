@@ -9,14 +9,255 @@
 </head>
 
 <body>
-  <article>
-    <section>
-      This is your sample app. You can utilise this space to build your
-      app.<br />
-      You can add your own element here.<br /><br />
-    </section>
-  </article>
-</body>
-<script src="./../scripts/app.js"></script>
 
+  <h1>Product List</h1>
+  <form id="productForm">
+      <input type="text" id="productName" placeholder="Product Name" required>
+      <input type="number" id="productPrice" placeholder="Price" required>
+      <input type="number" id="productQuantity" placeholder="Quantity" required>
+      <button type="submit">Add Product</button>
+  </form>
+
+  <table id="productTable">
+      <thead>
+          <tr>
+              <th>Name</th>
+              <th>Price</th>
+              <th>Quantity</th>
+              <th>Subtotal</th>
+              <th>Actions</th>
+          </tr>
+      </thead>
+      <tbody>
+      </tbody>
+  </table>
+
+  <h2>Subtotal: <span id="subtotal">0</span></h2>
+  <h2>Taxes (10%): <span id="taxes">0</span></h2>
+  <h2>Total: <span id="total">0</span></h2>
+
+  <button onclick="storeDataStorage()">Create Quote</button>
+  <script src="../scripts/app.js"></script>
+
+  <script>
+      const productForm = document.getElementById('productForm');
+      const productTable = document.getElementById('productTable').querySelector('tbody');
+      const subtotalElement = document.getElementById('subtotal');
+      const taxesElement = document.getElementById('taxes');
+      const totalElement = document.getElementById('total');
+      let subtotal = 0;
+
+      const taxRate = 0.10; // 10% tax
+      let data = { presupuesto: [] };
+
+      productForm.addEventListener('submit', function(event) {
+          event.preventDefault();
+
+          const productName = document.getElementById('productName').value;
+          const productPrice = parseFloat(document.getElementById('productPrice').value);
+          const productQuantity = parseInt(document.getElementById('productQuantity').value);
+          const productSubtotal = productPrice * productQuantity;
+
+          const productData = {
+              name: productName,
+              price: productPrice,
+              quantity: productQuantity,
+              subtotal: productSubtotal
+          };
+
+          // Add product data to the JSON object
+          data.presupuesto.push(productData);
+          console.log(data)
+
+          const row = document.createElement('tr');
+          row.innerHTML = `
+              <td>${productName}</td>
+              <td>${productPrice.toFixed(2)}</td>
+              <td>${productQuantity}</td>
+              <td class="product-subtotal">${productSubtotal.toFixed(2)}</td>
+              <td>
+                  <button class="edit-button">Edit</button>
+                  <button class="delete-button">Delete</button>
+              </td>
+          `;
+
+          productTable.appendChild(row);
+          updateSubtotal(productSubtotal);
+
+          // Reset the form
+          productForm.reset();
+
+          // Add event listeners for buttons
+          row.querySelector('.delete-button').addEventListener('click', function() {
+              deleteProduct(row, productData);
+          });
+
+          row.querySelector('.edit-button').addEventListener('click', function() {
+              editProduct(row, productData);
+          });
+
+          console.log('Current Data:', JSON.stringify(data)); // Log current data
+      });
+
+      function updateSubtotal(amount) {
+          subtotal += amount;
+          subtotalElement.textContent = subtotal.toFixed(2);
+          updateTaxesAndTotal();
+      }
+
+      function deleteProduct(row, productData) {
+          const productSubtotal = parseFloat(row.querySelector('.product-subtotal').textContent);
+          subtotal -= productSubtotal;
+          subtotalElement.textContent = subtotal.toFixed(2);
+          productTable.removeChild(row);
+
+          // Remove product data from the JSON object
+          data.presupuesto = data.presupuesto.filter(item => item !== productData);
+          updateTaxesAndTotal();
+
+          console.log('Current Data after deletion:', JSON.stringify(data)); // Log current data
+      }
+
+      function editProduct(row, productData) {
+          const newProductName = prompt("New product name:", productData.name);
+          const newProductPrice = prompt("New price:", productData.price);
+          const newProductQuantity = prompt("New quantity:", productData.quantity);
+
+          if (newProductName !== null && newProductPrice !== null && newProductQuantity !== null) {
+              const newSubtotal = parseFloat(newProductPrice) * parseInt(newProductQuantity);
+              const oldSubtotal = parseFloat(row.querySelector('.product-subtotal').textContent);
+
+              row.cells[0].textContent = newProductName;
+              row.cells[1].textContent = parseFloat(newProductPrice).toFixed(2);
+              row.cells[2].textContent = parseInt(newProductQuantity);
+              row.querySelector('.product-subtotal').textContent = newSubtotal.toFixed(2);
+
+              // Update subtotal
+              subtotal += (newSubtotal - oldSubtotal);
+              subtotalElement.textContent = subtotal.toFixed(2);
+              productData.name = newProductName;
+              productData.price = parseFloat(newProductPrice);
+              productData.quantity = parseInt(newProductQuantity);
+              productData.subtotal = newSubtotal;
+
+              updateTaxesAndTotal();
+              console.log('Current Data after edit:', JSON.stringify(data)); // Log current data
+          }
+      }
+
+      function updateTaxesAndTotal() {
+          const taxes = subtotal * taxRate;
+          const total = subtotal + taxes;
+
+          taxesElement.textContent = taxes.toFixed(2);
+          totalElement.textContent = total.toFixed(2);
+      }
+
+      function StoreQuotes(){
+        const onInit = app.initialized();
+
+        onInit.then(function (_client) {
+            window.client = _client;
+            client.db.set( "Quotes", data).then (
+function(data) {
+  console.log("stored Ok")
+  // success operation
+  // "data" value is { "Created" : true }
+},
+function(error) {
+  // failure operation
+  console.log(error)
+});
+        });
+
+      }
+
+      function storeDataStorage() {
+    const onInit = app.initialized();
+
+    onInit.then(function (_client) {
+        window.client = _client;
+
+        // Verificamos si el array 'presupuesto' no está vacío
+        if (data.presupuesto.length > 0) {
+            console.log("Products in current presupuesto:", data.presupuesto);
+
+            const taxes = subtotal * taxRate;
+            const total = subtotal + taxes;
+            // Creamos un nuevo presupuesto con una fecha u otros detalles si es necesario
+            const newPresupuesto = {
+                id: Date.now(), // Un identificador único, puede ser un timestamp
+                productos: [...data.presupuesto], // Los productos dentro del presupuesto
+                fechaCreacion: new Date().toISOString(), // Agregar fecha de creación
+                price: total.toFixed(2) // Precio total del presupuesto
+            };
+
+            // Intentamos obtener 'Quotes' de la base de datos
+            client.db.get("Quotes").then(
+                function(quotesData) {
+                    // Verificamos si 'Quotes' es un objeto y tiene un array 'presupuestos'
+                    if (typeof quotesData === 'object' && Array.isArray(quotesData.presupuestos)) {
+                        console.log("Quotes exists. Current presupuestos:", quotesData.presupuestos);
+
+                        // Añadimos el nuevo presupuesto al array existente de presupuestos
+                        quotesData.presupuestos.push(newPresupuesto);
+
+                        // Guardamos el objeto actualizado con el nuevo array de presupuestos
+                        client.db.set("Quotes", quotesData).then(
+                            function(response) {
+                                console.log("New presupuesto added successfully:", response);
+                                closeModalAndReload();
+                            },
+                            function(error) {
+                                console.error("Error updating Quotes:", error);
+                            }
+                        );
+                    } else {
+                        // Si 'Quotes' no tiene un array 'presupuestos', lo inicializamos
+                        console.log("Quotes does not have a 'presupuestos' array, initializing.");
+                        const newQuotes = {
+                            presupuestos: [newPresupuesto] // Nuevo array con el presupuesto
+                        };
+
+                        // Guardamos el nuevo objeto
+                        client.db.set("Quotes", newQuotes).then(
+                            function(response) {
+                                console.log("Quotes initialized and presupuesto stored:", response);
+                            },
+                            function(error) {
+                                console.error("Error initializing and storing Quotes:", error);
+                            }
+                        );
+                    }
+                },
+                function(error) {
+                    // Si 'Quotes' no existe, lo creamos como un objeto con un array 'presupuestos'
+                    console.log("Quotes key does not exist, creating it.");
+                    const newQuotes = {
+                        presupuestos: [newPresupuesto] // Un array que contiene el nuevo presupuesto
+                    };
+
+                    client.db.set("Quotes", newQuotes).then(
+                        function(response) {
+                            console.log("Quotes created and presupuesto stored:", response);
+                        },
+                        function(error) {
+                            console.error("Error creating and storing Quotes:", error);
+                        }
+                    );
+                }
+            );
+        } else {
+            console.error("Error: presupuesto array is empty.");
+        }
+    });
+}
+
+
+
+
+      
+  </script>
+
+</body>
 </html>

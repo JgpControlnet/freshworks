@@ -9,7 +9,8 @@
         }
       },
       "requests": {
-        "getData": {}
+        "getData": {},
+        "getDeal": {}
       }
     }
   },

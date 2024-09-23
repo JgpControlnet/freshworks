@@ -9,5 +9,16 @@
                 "Content-Type": "application/json"
             }
         }
+    },
+    "getDeal": {
+        "schema":{
+            "method": "GET",
+            "host": "controlnet-755726388052007135.myfreshworks.com",
+            "path": "/crm/sales/api/deals/<%= context.id %>",
+            "headers": {
+                "Authorization": "Token token=ibp6o4rZYuu33aq6botXlQ",
+                "Content-Type": "application/json"
+            }
+        }
     }
 }
