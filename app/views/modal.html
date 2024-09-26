@@ -11,6 +11,50 @@
 <body>
 
   <h1>Product List</h1>
+
+  <button onclick="loadContact()">prueba</button>
+
+  <form action="" id="quoteForm" class="formStyle">
+    <div class="flexCol">
+        <label for="primaryContact">Primary Contact</label>
+        <select name="primaryContact" id="primaryContact">
+        </select>
+    </div>
+    <div class="flexCol">
+        <label for="account">Account</label>
+        <select name="account" id="account"></select>
+    </div>
+    <div class="flexCol">
+        <label for="quoteType">Quote type</label>
+        <select name="quoteType" id="quoteType"></select>
+    </div>
+    <div class="flexCol">
+        <label for="quoteName">Quote Name</label>
+        <select name="quoteName" id="quoteName"></select>
+    </div>
+    <div class="flexCol">
+        <label for="quoteTemplate">Quote template</label>
+        <select name="quoteTemplate" id="quoteTemplate"></select>
+    </div>
+    <div class="flexCol">
+        <label for="quoteValue">Quote value</label>
+        <select name="quoteValue" id="quoteValue"></select>
+    </div>
+    <div class="flexCol">
+        <label for="quoteCurrency">Quote currency</label>
+        <select name="quoteCurrency" id="quoteCurrency"></select>
+    </div>
+    <div class="flexCol">
+        <label for="quoteStage">Quote stage</label>
+        <select name="quoteStage" id="quoteStage"></select>
+    </div>
+    <div class="flexCol">
+        <label for="valid">Valid till</label>
+        <input type="date" name="" id="">
+    </div>
+
+  </form>
+
   <form id="productForm">
       <input type="text" id="productName" placeholder="Product Name" required>
       <input type="number" id="productPrice" placeholder="Price" required>
@@ -152,6 +196,82 @@
           taxesElement.textContent = taxes.toFixed(2);
           totalElement.textContent = total.toFixed(2);
       }
+
+      function loadContact(){
+        const onInit = app.initialized();
+
+        onInit.then(function (_client) {
+            window.client = _client;
+            client.data.get("deal").then(function (dealData) {
+        console.log(dealData.deal.contact_ids[0])
+        console.log(dealData.deal.sales_account_id)
+        
+        
+    getContact(dealData.deal.contact_ids[0])
+  .then((contacto) => {
+    if (contacto) { // Ensure `contacto` is not null or undefined
+    //   console.log(contacto);
+      let select = document.getElementById('primaryContact');
+      let opt = document.createElement('option');
+      opt.value = dealData.deal.contact_ids[0];
+      opt.innerHTML = `${contacto.display_name}`;
+      select.appendChild(opt);
+    } else {
+      console.log("Contact not found or there was an error.");
+    }
+  })
+  .catch((error) => {
+    console.error("Failed to get contact:", error);
+  });
+
+  getAccount(dealData.deal.sales_account_id)
+  .then((account) => {
+    if (account) { // Ensure `contacto` is not null or undefined
+      console.log(account);
+      let select = document.getElementById('account');
+      let opt = document.createElement('option');
+      opt.value = dealData.deal.sales_account_id;
+      opt.innerHTML = `${account.name}`;
+      select.appendChild(opt);
+    } else {
+      console.log("Contact not found or there was an error.");
+    }
+  })
+  .catch((error) => {
+    console.error("Failed to get contact:", error);
+  });
+        
+      }).catch(function (error) {
+        console.error("Error fetching deal context: ", error);
+      });
+        });
+
+      }
+
+      async function getContact(contact_id) {
+  try {
+    let data = await client.request.invokeTemplate("getContact", { "context": { "id": contact_id }});
+    let datos = JSON.parse(data.response);
+    return datos.contact; // Return the contact object
+  } catch (err) {
+    console.error(err);
+    return null; // Return null in case of an error to avoid undefined errors later
+  }
+}
+
+async function getAccount(account_id) {
+  try {
+    let data = await client.request.invokeTemplate("getAccount", { "context": { "id": account_id }});
+    let datos = JSON.parse(data.response);
+  } catch (err) {
+    console.error(err);
+    return null; // Return null in case of an error to avoid undefined errors later
+  }
+}
+
+// Usage
+
+
 
       function StoreQuotes(){
         const onInit = app.initialized();

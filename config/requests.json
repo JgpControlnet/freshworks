@@ -20,5 +20,27 @@
                 "Content-Type": "application/json"
             }
         }
+    },
+    "getContact":{
+        "schema":{
+            "method": "GET",
+            "host": "controlnet-755726388052007135.myfreshworks.com",
+            "path": "/crm/sales/api/contacts/<%= context.id %>",
+            "headers": {
+                "Authorization": "Token token=ibp6o4rZYuu33aq6botXlQ",
+                "Content-Type": "application/json"
+            }
+        }
+    },
+    "getAccount":{
+        "schema":{
+            "method": "GET",
+            "host": "controlnet-755726388052007135.myfreshworks.com",
+            "path": "/crm/sales/api/sales_accounts/<%= context.id %>",
+            "headers": {
+                "Authorization": "Token token=ibp6o4rZYuu33aq6botXlQ",
+                "Content-Type": "application/json"
+            }
+        }
     }
 }

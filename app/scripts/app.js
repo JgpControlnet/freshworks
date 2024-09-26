@@ -9,20 +9,23 @@ document.onreadystatechange = function() {
     function getClient(_client) {
       window.client = _client;
       client.events.on('app.activated', onAppActivate);
+
       client.data.get("deal").then(function (dealData) {
         console.log(dealData)
         // const dealId = dealData.deal.id;        // ID of the deal
         // const dealName = dealData.deal.name;    // Name of the deal
-  
+        
         // getDeal(dealData.deal.id);
         // Now you can use the deal information in your app
         // console.log("Deal ID: ", dealId);
         // console.log("Deal Name: ", dealName);
-  
+        
+        getContact(dealData.deal.contact_ids[0]);
+        getAccount(dealData.deal.account_id);
       }).catch(function (error) {
         console.error("Error fetching deal context: ", error);
       });
-    
+      
       
     getQuote();
     // limpiarQuotes();
@@ -284,6 +287,36 @@ async function getData() {
 
 
   }
+
+  async function getContact(contact_id) {
+    try {
+      let data = await client.request.invokeTemplate("getContact", {"context": { "id": contact_id }})
+      console.log(data);
+      let datos = JSON.parse(data.response);
+      console.log(datos.contact)
+      return datos.contact
+      
+      // console.log(JSON.stringify(data))
+    } catch (err) {
+      console.log(err)
+    }
+
+
+  }
+  async function getAccount(account_id) {
+    try {
+      let data = await client.request.invokeTemplate("getContact", {"context": { "id": account_id }})
+      console.log(data);
+      let datos = JSON.parse(data.response);
+      console.log(datos)
+      
+      // console.log(JSON.stringify(data))
+    } catch (err) {
+      console.log(err)
+    }
+
+
+}
 //   client.request.invokeTemplate("getData", {
 //   context: {"Authorization":"Token token=ibp6o4rZYuu33aq6botXlQ"},
 // });

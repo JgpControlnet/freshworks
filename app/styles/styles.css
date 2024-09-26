@@ -59,3 +59,15 @@ th, td {
 th {
   background-color: #f4f4f4;
 }
+.formStyle{
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10%;
+  gap: 10px;
+}
+.flexCol{
+  display: flex;
+  flex-direction: column;
+  font-weight: bold;
+  font-size: large;
+}
