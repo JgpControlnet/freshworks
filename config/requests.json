@@ -42,5 +42,16 @@
                 "Content-Type": "application/json"
             }
         }
+    },
+    "createQuote":{
+        "schema":{
+            "method": "POST",
+            "host": "controlnet-755726388052007135.myfreshworks.com",
+            "path": "/crm/sales/api/cpq/cpq_documents",
+            "headers": {
+                "Authorization": "Token token=ibp6o4rZYuu33aq6botXlQ",
+                "Content-Type": "application/json"
+            }
+        }
     }
 }

@@ -2,7 +2,7 @@
   "platform-version": "2.3",
   "product": {
     "freshworks_crm": {
-      "location": {      
+      "location": {
         "deal_entity_menu": {
           "url": "index.html",
           "icon": "styles/images/icon.svg"
@@ -12,13 +12,13 @@
         "getData": {},
         "getDeal": {},
         "getContact": {},
-        "getAccount": {}
+        "getAccount": {},
+        "createQuote": {}
       }
     }
   },
   "engines": {
-    "node": "18.18.2",
+    "node": "18.13.0",
     "fdk": "9.2.0"
   }
 }
-
