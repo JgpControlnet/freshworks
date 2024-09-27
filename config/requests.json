@@ -56,7 +56,7 @@
     },
     "addProductsQuote":{
         "schema":{
-            "method": "POST",
+            "method": "PUT",
             "host": "controlnet-755726388052007135.myfreshworks.com",
             "path": "/crm/sales/api/cpq/cpq_documents/<%= context.id %>?include=products",
             "headers": {

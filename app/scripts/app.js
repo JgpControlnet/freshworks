@@ -2,7 +2,7 @@ let presupuestos = [];
 document.onreadystatechange = function () {
   if (document.readyState === 'interactive') renderApp();
   function renderApp() {
-    var onInit = app.initialized();
+    // var onInit = app.initialized();
 
     // onInit.then(getClient).catch(handleErr);
 
@@ -80,7 +80,7 @@ async function createDocumentQuote() {
 
               console.log(cuerpo)
 
-              addProducts(docQuote.id,products)
+              addProducts(docQuote.id,cuerpo)
             })
           
 
@@ -128,6 +128,7 @@ async function createQuote(body) {
 
 async function addProducts(id,body) {
   try {
+    console.log(JSON.stringify(body))
     let data = await client.request.invokeTemplate("addProductsQuote",  { "context": { id }  , "body": JSON.stringify(body)  })
     console.log(JSON.parse(data.response))
   } catch (err) {
