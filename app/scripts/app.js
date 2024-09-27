@@ -73,7 +73,13 @@ async function createDocumentQuote() {
             .then((quote)=>{
               console.log("quote",quote)
               let docQuote = JSON.parse(quote.response)
-              let products = [{"id":1,"quantity":1,"discount":0,"billing_cycle":6,"unit_price":2000,"setup_fee":200},{"id":2,"quantity":2,"discount":10}]
+              let products = [{"id":1,"quantity":1,"discount":0,"billing_cycle":6,"unit_price":2000,"setup_fee":200},{"id":2,"quantity":2,"discount":10}];
+              let cuerpo = {};
+              cuerpo.cpq_document = {};
+              cuerpo.cpq_document.products = products;
+
+              console.log(cuerpo)
+
               addProducts(docQuote.id,products)
             })
           
@@ -120,9 +126,9 @@ async function createQuote(body) {
 
 }
 
-async function addProducts(id,products) {
+async function addProducts(id,body) {
   try {
-    let data = await client.request.invokeTemplate("addProductsQuote",  { "context": { id }  , "cpq_document": {"products":products.toString()}  })
+    let data = await client.request.invokeTemplate("addProductsQuote",  { "context": { id }  , "body": JSON.stringify(body)  })
     console.log(JSON.parse(data.response))
   } catch (err) {
     console.log(err)
