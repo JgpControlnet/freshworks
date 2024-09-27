@@ -29,9 +29,9 @@ document.onreadystatechange = function () {
 
           let body = {};
 
-          body.deal_id = dealData.deal.id
-          body.contact_id = dealData.deal.contact_ids[0]
-          body.sales_account_id = dealData.deal.sales_account_id
+          body.deal_id = parseInt(dealData.deal.id)
+          body.contact_id = parseInt(dealData.deal.contact_ids[0])
+          body.sales_account_id = parseInt(dealData.deal.sales_account_id)
           body.document_type = "Quote"
           body.stage = "Draft"
           body.valid_till = fechaDentroDeUnMes.toString()
@@ -40,7 +40,7 @@ document.onreadystatechange = function () {
           .then((salesAccount) => {
             if (salesAccount) {
               let account = JSON.parse(salesAccount.response).sales_account
-              console.log(account)
+              console.log("account",account)
               body.shipping_address = account.address
           body.shipping_city = account.city
           body.shipping_state = account.state
@@ -54,21 +54,23 @@ document.onreadystatechange = function () {
             } else {
               console.log("Failed to retrieve the account.");
             }
+
+            body.amount = "100"
+          body.display_name = "test"
+          body.currency_code = "EUR"
+          body.owner_id = parseInt(dealData.deal.owner_id)
+          body.territory_id = 1
+          body.cpq_document_template_name = "Sample Template"
+
+          console.log("body",body)
+          createQuote(body)
           })
           .catch((error) => {
             console.error("Error while fetching the account:", error);
           });
 
           
-          body.amount = "100"
-          body.display_name = "test"
-          body.currency_code = "EUR"
-          body.owner_id = dealData.deal.owner_id
-          body.territory_id = "1"
-          body.cpq_document_template_name = "Sample Template"
-
-          console.log(body)
-          createQuote(body)
+          
 
           
           
@@ -100,9 +102,9 @@ async function getAccount(account_id) {
 
 async function createQuote(body) {
   try {
-    console.log(JSON.stringify(body))
+    console.log(body)
     let data = await client.request.invokeTemplate("createQuote",  { "context": {  }  , "body": JSON.stringify(body) })
-    console.log(JSON.stringify(data))
+    console.log(JSON.parse(data.response))
   } catch (err) {
     console.log(err)
   }
