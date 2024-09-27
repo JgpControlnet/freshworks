@@ -53,5 +53,16 @@
                 "Content-Type": "application/json"
             }
         }
+    },
+    "addProductsQuote":{
+        "schema":{
+            "method": "POST",
+            "host": "controlnet-755726388052007135.myfreshworks.com",
+            "path": "/crm/sales/api/cpq/cpq_documents/<%= context.id %>?include=products",
+            "headers": {
+                "Authorization": "Token token=ibp6o4rZYuu33aq6botXlQ",
+                "Content-Type": "application/json"
+            }
+        }
     }
 }

@@ -13,12 +13,13 @@
         "getDeal": {},
         "getContact": {},
         "getAccount": {},
-        "createQuote": {}
+        "createQuote": {},
+        "addProductsQuote": {}
       }
     }
   },
   "engines": {
-    "node": "18.18.2",
+    "node": "18.13.0",
     "fdk": "9.2.0"
   }
 }

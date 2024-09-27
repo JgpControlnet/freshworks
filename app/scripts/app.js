@@ -4,89 +4,93 @@ document.onreadystatechange = function () {
   function renderApp() {
     var onInit = app.initialized();
 
-    onInit.then(getClient).catch(handleErr);
+    // onInit.then(getClient).catch(handleErr);
 
-    function getClient(_client) {
-      window.client = _client;
-      client.data.get("deal").then(function (dealData) {
-        
-        
-
-          const sumarMes = (fecha) => {
-            // Sumar un mes a la fecha
-            fecha.setMonth(fecha.getMonth() + 1);
-            return fecha;
-          };
-          
-          // Crear una nueva fecha
-          let fechaActual = new Date();
-          
-          // Obtener la fecha dentro de un mes
-          let fechaDentroDeUnMes = sumarMes(fechaActual);
-          
-          // Mostrar la fecha en el formato deseado
-          console.log(fechaDentroDeUnMes.toString());
-
-          let body = {};
-
-          body.deal_id = parseInt(dealData.deal.id)
-          body.contact_id = parseInt(dealData.deal.contact_ids[0])
-          body.sales_account_id = parseInt(dealData.deal.sales_account_id)
-          body.document_type = "Quote"
-          body.stage = "Draft"
-          body.valid_till = fechaDentroDeUnMes.toString()
-
-          getAccount(dealData.deal.sales_account_id)
-          .then((salesAccount) => {
-            if (salesAccount) {
-              let account = JSON.parse(salesAccount.response).sales_account
-              console.log("account",account)
-              body.shipping_address = account.address
-          body.shipping_city = account.city
-          body.shipping_state = account.state
-          body.shipping_zipcode = account.zipcode
-          body.shipping_country = account.country
-          body.billing_address = account.address
-          body.billing_city = account.city
-          body.billing_state = account.state
-          body.billing_zipcode = account.zipcode
-          body.billing_country = account.country
-            } else {
-              console.log("Failed to retrieve the account.");
-            }
-
-            body.amount = "100"
-          body.display_name = "test"
-          body.currency_code = "EUR"
-          body.owner_id = parseInt(dealData.deal.owner_id)
-          body.territory_id = 1
-          body.cpq_document_template_name = "Sample Template"
-
-          console.log("body",body)
-          createQuote(body)
-          })
-          .catch((error) => {
-            console.error("Error while fetching the account:", error);
-          });
-
-          
-          
-
-          
-          
-
-      }).catch(function (error) {
-        console.error("Error fetching deal context: ", error);
-      });
-
-
-      // getQuote();
-      // limpiarQuotes();
-    }
+    
 
 
   }
 };
+
+async function createDocumentQuote() {
+  const onInit = app.initialized();
+
+  onInit.then(function (_client) {
+    window.client = _client;
+    client.data.get("deal").then(function (dealData) {
+      const sumarMes = (fecha) => {
+        // Sumar un mes a la fecha
+        fecha.setMonth(fecha.getMonth() + 1);
+        return fecha;
+      };
+
+      // Crear una nueva fecha
+      let fechaActual = new Date();
+
+      // Obtener la fecha dentro de un mes
+      let fechaDentroDeUnMes = sumarMes(fechaActual);
+
+      // Mostrar la fecha en el formato deseado
+      console.log(fechaDentroDeUnMes.toString());
+
+      let body = {};
+
+      body.deal_id = parseInt(dealData.deal.id);
+      body.contact_id = parseInt(dealData.deal.contact_ids[0]);
+      body.sales_account_id = parseInt(dealData.deal.sales_account_id);
+      body.document_type = "Quote";
+      body.stage = "Draft";
+      body.valid_till = fechaDentroDeUnMes.toString();
+
+      getAccount(dealData.deal.sales_account_id)
+        .then((salesAccount) => {
+          if (salesAccount) {
+            let account = JSON.parse(salesAccount.response).sales_account;
+            console.log("account", account);
+            body.shipping_address = account.address;
+            body.shipping_city = account.city;
+            body.shipping_state = account.state;
+            body.shipping_zipcode = account.zipcode;
+            body.shipping_country = account.country;
+            body.billing_address = account.address;
+            body.billing_city = account.city;
+            body.billing_state = account.state;
+            body.billing_zipcode = account.zipcode;
+            body.billing_country = account.country;
+          } else {
+            console.log("Failed to retrieve the account.");
+          }
+
+          body.amount = "100";
+          body.display_name = "test";
+          body.currency_code = "EUR";
+          body.owner_id = parseInt(dealData.deal.owner_id);
+          body.territory_id = 1;
+          body.cpq_document_template_name = "Sample Template";
+
+          console.log("body", body);
+          createQuote(body)
+            .then((quote)=>{
+              console.log("quote",quote)
+              let docQuote = JSON.parse(quote.response)
+              let products = [{"id":1,"quantity":1,"discount":0,"billing_cycle":6,"unit_price":2000,"setup_fee":200},{"id":2,"quantity":2,"discount":10}]
+              addProducts(docQuote.id,products)
+            })
+          
+
+
+        })
+        .catch((error) => {
+          console.error("Error while fetching the account:", error);
+        });
+    }).catch(function (error) {
+      console.error("Error fetching deal context: ", error);
+    });
+
+  });
+}
+
+
 
 async function getAccount(account_id) {
   try {
@@ -105,6 +109,7 @@ async function createQuote(body) {
     console.log(body)
     let data = await client.request.invokeTemplate("createQuote",  { "context": {  }  , "body": JSON.stringify(body) })
     console.log(JSON.parse(data.response))
+    return data
   } catch (err) {
     console.log(err)
   }
@@ -112,6 +117,16 @@ async function createQuote(body) {
 
   
 
+
+}
+
+async function addProducts(id,products) {
+  try {
+    let data = await client.request.invokeTemplate("addProductsQuote",  { "context": { id }  , "cpq_document": {"products":products.toString()}  })
+    console.log(JSON.parse(data.response))
+  } catch (err) {
+    console.log(err)
+  }
 
 }
 
