@@ -13,37 +13,19 @@
     <section>
       <h1>Quotes</h1>
     </section>
-    <section class="sectionTitle">
-      <div class="quotesTitle">
-        <h3>Custom quotes</h3>
-        <button class="btn-open" onclick="createDocumentQuote()">Create new custom quote</button>
-      </div>
-    </section>
+    
     <section>
-
-      <table id="tabla-presupuestos">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Fecha de Creación</th>
-            <th>Precio</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Las filas de la tabla se agregarán dinámicamente -->
-        </tbody>
-      </table>
-
       <div id="vista-edicion" style="display:none;">
-        <h2>Editar Presupuesto</h2>
-        <span id="idPresupuesto" style="display: none;"></span>
+        <h2>Editar Producto</h2>
+        <span id="idProducto" style="display: none;"></span>
         <table id="tabla-edicion">
           <thead>
             <tr>
               <th>Name</th>
+              <th>Description</th>
+              <th>Sku number</th>
+              <th>Price</th>
               <th>Quantity</th>
-              <th>Unit Price</th>
               <th>Subtotal</th>
             </tr>
           </thead>
@@ -58,6 +40,8 @@
         <h1>Product List</h1>
         <form id="productForm">
           <input type="text" id="productName" placeholder="Product Name" required>
+          <input type="text" id="description" placeholder="Description" required>
+          <input type="text" id="sku_number" placeholder="Sku number" required>
           <input type="number" id="productPrice" placeholder="Price" required>
           <input type="number" id="productQuantity" placeholder="Quantity" required>
           <button type="submit">Add Product</button>
@@ -67,6 +51,8 @@
           <thead>
             <tr>
               <th>Name</th>
+              <th>Description</th>
+              <th>Sku number</th>
               <th>Price</th>
               <th>Quantity</th>
               <th>Subtotal</th>
@@ -76,6 +62,23 @@
           <tbody>
           </tbody>
         </table>
+        <h2>Subtotal: <span id="subtotal">0</span></h2>
+  <h2>Taxes (10%): <span id="taxes">0</span></h2>
+  <h2>Total: <span id="total">0</span></h2>
+        <section class="sectionTitle">
+          <div>
+            <h3>Custom quotes</h3>
+          </div>
+          <div class="quotesFLex">
+            <div>
+              <label for="templateSelect">Selecciona un Template:</label>
+              <select id="templateSelect">
+                <!-- Las opciones se generarán dinámicamente aquí -->
+              </select>
+            </div>
+            <button class="btn-open" onclick="createDocumentQuote()">Create new custom quote</button>
+          </div>
+        </section>
       </div>
     </section>
   </article>

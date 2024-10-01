@@ -43,6 +43,17 @@
             }
         }
     },
+    "getProduct":{
+        "schema":{
+            "method": "GET",
+            "host": "controlnet-755726388052007135.myfreshworks.com",
+            "path": "/crm/sales/api/cpq/products/<%= context.id %>",
+            "headers": {
+                "Authorization": "Token token=ibp6o4rZYuu33aq6botXlQ",
+                "Content-Type": "application/json"
+            }
+        }
+    },
     "createQuote":{
         "schema":{
             "method": "POST",
@@ -64,5 +75,49 @@
                 "Content-Type": "application/json"
             }
         }
-    }
+    },
+    "getDocuments":{
+        "schema":{
+            "method": "GET",
+            "host": "controlnet-755726388052007135.myfreshworks.com",
+            "path": "/crm/sales/api/cpq/cpq_documents",
+            "headers": {
+                "Authorization": "Token token=ibp6o4rZYuu33aq6botXlQ",
+                "Content-Type": "application/json"
+            }
+        }
+    },
+    "getCurrencies":{
+        "schema":{
+            "method": "GET",
+            "host": "controlnet-755726388052007135.myfreshworks.com",
+            "path": "/crm/sales/api/selector/currencies",
+            "headers": {
+                "Authorization": "Token token=ibp6o4rZYuu33aq6botXlQ",
+                "Content-Type": "application/json"
+            }
+        }
+    },
+    "createProduct":{
+    "schema":{
+            "method": "POST",
+            "host": "controlnet-755726388052007135.myfreshworks.com",
+            "path": "/crm/sales/api/cpq/products",
+            "headers": {
+                "Authorization": "Token token=ibp6o4rZYuu33aq6botXlQ",
+                "Content-Type": "application/json"
+            }
+        }
+    },
+    "AddProductPrice":{
+        "schema":{
+                "method": "PUT",
+                "host": "controlnet-755726388052007135.myfreshworks.com",
+                "path": "/crm/sales/api/cpq/products/<%= context.id %>?include=product_pricings",
+                "headers": {
+                    "Authorization": "Token token=ibp6o4rZYuu33aq6botXlQ",
+                    "Content-Type": "application/json"
+                }
+            }
+        }
 }

@@ -2,12 +2,28 @@ let presupuestos = [];
 document.onreadystatechange = function () {
   if (document.readyState === 'interactive') renderApp();
   function renderApp() {
-    // var onInit = app.initialized();
+    var onInit = app.initialized();
 
-    // onInit.then(getClient).catch(handleErr);
 
-    
+    onInit.then(function (_client) {
+      window.client = _client;
+      getDocuments()
+      .then((documents) => {
+        let documentos = JSON.parse(documents.response)
+        console.log(documentos)
+        const distinctTemplates = [...new Set(documentos.cpq_documents.map(doc => doc.cpq_document_template_name))];
 
+
+        const selectElement = document.getElementById('templateSelect');
+
+        distinctTemplates.forEach(template => {
+          const option = document.createElement('option');
+          option.value = template;
+          option.textContent = template;
+          selectElement.appendChild(option);
+      });
+      })
+    });
 
   }
 };
@@ -34,6 +50,8 @@ async function createDocumentQuote() {
       console.log(fechaDentroDeUnMes.toString());
 
       let body = {};
+
+      console.log("Deal",dealData)
 
       body.deal_id = parseInt(dealData.deal.id);
       body.contact_id = parseInt(dealData.deal.contact_ids[0]);
@@ -68,20 +86,109 @@ async function createDocumentQuote() {
           body.territory_id = 1;
           body.cpq_document_template_name = "Sample Template";
 
-          console.log("body", body);
           createQuote(body)
-            .then((quote)=>{
-              console.log("quote",quote)
-              let docQuote = JSON.parse(quote.response)
-              let products = [{"id":1,"quantity":1,"discount":0,"billing_cycle":6,"unit_price":2000,"setup_fee":200},{"id":2,"quantity":2,"discount":10}];
-              let cuerpo = {};
-              cuerpo.cpq_document = {};
-              cuerpo.cpq_document.products = products;
+  .then((quote) => {
+    let docQuote = JSON.parse(quote.response);
+    console.log("docQuote", docQuote);
 
-              console.log(cuerpo)
+    // Crear un array de promesas para procesar cada producto
+    const productPromises = data.presupuesto.map((product) => {
+      return getProduct(product.id)
+        .then((producto) => {
+          if (producto.status !== 200) {
+            console.log("hay que crear el producto", product.id);
+            let newProduct = {
+              product: {
+                name: product.name,
+                description: product.description,
+                sku_number: product.sku_number,
+                base_currency_amount: product.unit_price,
+              },
+            };
 
-              addProducts(docQuote.id,cuerpo)
-            })
+            // Crear el producto si no existe
+            return createProduct(newProduct).then((response) => {
+              console.log("creaproducto", response);
+              let nuevoProducto = JSON.parse(response.response);
+              product.id = nuevoProducto.product.id;
+
+              // Obtener y agregar el precio del producto
+              return getCurrencies().then((currencies) => {
+                console.log(currencies.response);
+                let currencieList = JSON.parse(currencies.response);
+                console.log("currencieList", currencieList);
+                console.log("currency_id", dealData.deal.currency_id);
+
+
+                let currencyCode = currencieList.currencies.find(
+                  (d) => parseInt(d.id) === parseInt(dealData.deal.currency_id)
+                );
+
+                console.log("currencyCode", currencyCode);
+
+                let productPrice = {
+                  product: {
+                    pricing_type: 1,
+                    product_pricings: [
+                      {
+                        currency_code: currencyCode.currency_code,
+                        unit_price: product.unit_price,
+                      },
+                    ],
+                  },
+                };
+
+                // Agregar el precio del producto
+                return addProductPrice(product.id, productPrice);
+              });
+            });
+          } else {
+            // Si el producto ya existe, no es necesario crearlo ni agregar precios
+            return Promise.resolve();
+          }
+        });
+    });
+
+    // Esperar a que todas las promesas de los productos se resuelvan
+    return Promise.all(productPromises)
+      .then(() => {
+        // Una vez que todos los productos han sido procesados, se llama a addProducts
+        let cuerpo = {
+          cpq_document: {
+            products: data.presupuesto,
+          },
+        };
+
+        return addProducts(docQuote.cpq_document.id, cuerpo)
+      })
+      .then(async (respuesta) => {
+        // Aquí se maneja la respuesta de addProducts
+        console.log("addProducts respuesta:", respuesta);
+        if(respuesta.status === 200){
+          console.log("Presupuesto creado correctamente");
+          try {
+            let data = await client.interface.trigger("showNotify", {
+              type: "success",
+              title: "Success!!", /* The "title" should be plain text */
+              message: "The Quote has been created succesfully" /* The "message" should be plain text */
+            });
+              console.log(data); // success message
+              document.querySelector('#productTable tbody').innerHTML = ""
+              document.getElementById('productForm').reset()
+
+          } catch (error) {
+              // failure operation
+              console.error(error);
+          }
+        }else{
+          console.log("Error al crear el presupuesto");
+        }
+      })
+      .catch((error) => {
+        console.error("Error procesando los productos o agregando el presupuesto:", error);
+      });
+  });
+
           
 
 
@@ -106,33 +213,74 @@ async function getAccount(account_id) {
   } catch (err) {
     console.log(err)
   }
+}
 
+async function getProduct(productId) {
+  try {
+    let data = await client.request.invokeTemplate("getProduct", { "context": { "id": productId } })
+    return data
+    // console.log(JSON.stringify(data))
+  } catch (err) {
+    return err
+  }
+}
 
+async function getDocuments() {
+  try {
+    let data = await client.request.invokeTemplate("getDocuments")
+    return data
+    // console.log(JSON.stringify(data))
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+async function getCurrencies() {
+  try {
+    let data = await client.request.invokeTemplate("getCurrencies")
+    return data
+  } catch (err) {
+    console.log(err)
+  }
 }
 
 async function createQuote(body) {
   try {
-    console.log(body)
     let data = await client.request.invokeTemplate("createQuote",  { "context": {  }  , "body": JSON.stringify(body) })
+    return data
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+async function createProduct(body) {
+  try {
+    console.log(body)
+    let data = await client.request.invokeTemplate("createProduct", { "context": {}  , "body": JSON.stringify(body)  })
     console.log(JSON.parse(data.response))
     return data
   } catch (err) {
     console.log(err)
   }
-
-
-  
-
-
 }
 
 async function addProducts(id,body) {
   try {
-    console.log(JSON.stringify(body))
+    console.log(id)
     let data = await client.request.invokeTemplate("addProductsQuote",  { "context": { id }  , "body": JSON.stringify(body)  })
-    console.log(JSON.parse(data.response))
+    return data
   } catch (err) {
-    console.log(err)
+    return err
+  }
+
+}
+
+async function addProductPrice(id,body) {
+  try {
+    let data = await client.request.invokeTemplate("AddProductPrice",  { "context": { id }  , "body": JSON.stringify(body)  })
+    return data
+  } catch (err) {
+    return err
   }
 
 }
@@ -146,21 +294,28 @@ let subtotal = 0;
 
 const taxRate = 0.10; // 10% tax
 let data = { presupuesto: [] };
+let idProducto = 1;
 
 productForm.addEventListener('submit', function (event) {
   event.preventDefault();
 
   const productName = document.getElementById('productName').value;
+  const productDescription = document.getElementById('description').value;
+  const sku_number = document.getElementById('sku_number').value;
   const productPrice = parseFloat(document.getElementById('productPrice').value);
   const productQuantity = parseInt(document.getElementById('productQuantity').value);
   const productSubtotal = productPrice * productQuantity;
 
   const productData = {
+    id : idProducto,
     name: productName,
-    price: productPrice,
+    description: productDescription,
+    sku_number: sku_number,
+    unit_price: productPrice,
     quantity: productQuantity,
     subtotal: productSubtotal
   };
+  idProducto ++;
 
   // Add product data to the JSON object
   data.presupuesto.push(productData);
@@ -169,6 +324,8 @@ productForm.addEventListener('submit', function (event) {
   const row = document.createElement('tr');
   row.innerHTML = `
               <td>${productName}</td>
+              <td>${productDescription}</td>
+              <td>${sku_number}</td>
               <td>${productPrice.toFixed(2)}</td>
               <td>${productQuantity}</td>
               <td class="product-subtotal">${productSubtotal.toFixed(2)}</td>
@@ -179,67 +336,113 @@ productForm.addEventListener('submit', function (event) {
           `;
 
   productTable.appendChild(row);
-  updateSubtotal(productSubtotal);
+  updateSubtotal();
 
   // Reset the form
   productForm.reset();
 
   // Add event listeners for buttons
   row.querySelector('.delete-button').addEventListener('click', function () {
-    deleteProduct(row, productData);
+    deleteProduct(productData.id);
   });
 
   row.querySelector('.edit-button').addEventListener('click', function () {
-    editProduct(row, productData);
+    editProduct(productData.id);
   });
 
   console.log('Current Data:', JSON.stringify(data)); // Log current data
 });
 
-function updateSubtotal(amount) {
-  subtotal += amount;
+function updateSubtotal() {
+  // Usa reduce para sumar todos los subtotales (price * quantity)
+  const total = data.presupuesto.reduce((acumulador, producto) => {
+    return acumulador + (producto.unit_price * producto.quantity);
+  }, 0);  // Inicializa el acumulador en 0
+
+  subtotal = total;
   subtotalElement.textContent = subtotal.toFixed(2);
   updateTaxesAndTotal();
 }
 
-function deleteProduct(row, productData) {
-  const productSubtotal = parseFloat(row.querySelector('.product-subtotal').textContent);
-  subtotal -= productSubtotal;
-  subtotalElement.textContent = subtotal.toFixed(2);
-  productTable.removeChild(row);
+function deleteProduct(idProducto) {
+   // Encuentra el índice del producto en el array
+   const index = data.presupuesto.findIndex(d => d.id === idProducto);
 
-  // Remove product data from the JSON object
-  data.presupuesto = data.presupuesto.filter(item => item !== productData);
-  updateTaxesAndTotal();
+   if (index !== -1) {  // Si el producto existe en el array
+     // Elimina el producto del array
+     data.presupuesto.splice(index, 1);
+     console.log(`Producto con ID ${idProducto} eliminado exitosamente.`);
+   } else {
+     console.error("Producto no encontrado");
+   }
 
-  console.log('Current Data after deletion:', JSON.stringify(data)); // Log current data
+
+   let productTable = document.querySelector('#productTable tbody');
+   productTable.innerHTML = ""
+
+    data.presupuesto.forEach((product)=>{
+      let row = document.createElement('tr')
+      row.innerHTML = `
+              <td>${product.name}</td>
+              <td>${product.description}</td>
+              <td>${product.sku_number}</td>
+              <td>${product.unit_price.toFixed(2)}</td>
+              <td>${product.quantity}</td>
+              <td class="product-subtotal">${product.unit_price * product.quantity}</td>
+              <td>
+                  <button class="edit-button">Edit</button>
+                  <button class="delete-button">Delete</button>
+              </td>
+          `;
+          productTable.appendChild(row);
+          
+          // Add event listeners for buttons
+          row.querySelector('.delete-button').addEventListener('click', function () {
+            deleteProduct(productoID);
+          });
+          
+          row.querySelector('.edit-button').addEventListener('click', function () {
+            editProduct(productoID);
+          });
+        })
+        updateSubtotal();
 }
 
-function editProduct(row, productData) {
-  // const newProductName = prompt("New product name:", productData.name);
-  // const newProductPrice = prompt("New price:", productData.price);
-  // const newProductQuantity = prompt("New quantity:", productData.quantity);
+function editProduct(idProducto) {
+  
+ 
+  
+  const productTable = document.getElementById('tabla-edicion').querySelector('tbody');
+  console.log(productTable)
+  document.querySelector('#tabla-edicion tbody').innerHTML = ""
 
-  if (newProductName !== null && newProductPrice !== null && newProductQuantity !== null) {
-    const newSubtotal = parseFloat(newProductPrice) * parseInt(newProductQuantity);
-    const oldSubtotal = parseFloat(row.querySelector('.product-subtotal').textContent);
+  const newRow = document.createElement('tr');
 
-    row.cells[0].textContent = newProductName;
-    row.cells[1].textContent = parseFloat(newProductPrice).toFixed(2);
-    row.cells[2].textContent = parseInt(newProductQuantity);
-    row.querySelector('.product-subtotal').textContent = newSubtotal.toFixed(2);
+  const product = data.presupuesto.find(d => d.id == idProducto);
+if (product) {
+  newRow.innerHTML = `
+      <td id="productID" class="hidden">${product.id}</td>
+      <td>${product.name}</td>
+      <td>${product.description}</td>
+      <td>${product.sku_number}</td>
+      <td><input id="editPrice" onchange="editSubtotal()" type="number" value="${product.unit_price.toFixed(2)}"/></td>
+      <td><input id="editQuantity" onchange="editSubtotal()" type="number" value="${product.quantity}"/></td>
+      <td id="editSubtotal">${product.unit_price * product.quantity}</td>
 
-    // Update subtotal
-    subtotal += (newSubtotal - oldSubtotal);
-    subtotalElement.textContent = subtotal.toFixed(2);
-    productData.name = newProductName;
-    productData.price = parseFloat(newProductPrice);
-    productData.quantity = parseInt(newProductQuantity);
-    productData.subtotal = newSubtotal;
+  `;
+} else {
+  console.error("Producto no encontrado");
+}
+    
 
-    updateTaxesAndTotal();
-    console.log('Current Data after edit:', JSON.stringify(data)); // Log current data
-  }
+ 
+
+  
+  
+  productTable.appendChild(newRow);
+  document.getElementById('vista-edicion').style.display = 'block';
+  document.getElementById('vista-productos').style.display = 'none';
+
 }
 
 function updateTaxesAndTotal() {
@@ -251,7 +454,13 @@ function updateTaxesAndTotal() {
 }
 
 
+function editSubtotal(){
+    const price = document.getElementById('editPrice')
+    const quantity = document.getElementById('editQuantity')
+    const subtotal = document.getElementById('editSubtotal')
 
+    subtotal.innerHTML = price.value * quantity.value;
+}
 
 
 function StoreQuotes() {
@@ -371,24 +580,7 @@ async function getQuote() {
   }
 }
 
-function cargarPresupuestos() {
-  const tablaBody = document.querySelector("#tabla-presupuestos tbody");
-  tablaBody.innerHTML = ''; // Limpiar la tabla antes de cargar
-
-  presupuestos.forEach(presupuesto => {
-    const fila = document.createElement('tr');
-
-    // Crear columnas para ID, Fecha y Precio
-    fila.innerHTML = `
-          <td>${presupuesto.id}</td>
-          <td>${new Date(presupuesto.fechaCreacion).toLocaleString()}</td>
-          <td>${presupuesto.price}</td>
-          <td><button onclick="editarPresupuesto(${presupuesto.id})">Editar</button></td>
-      `;
-
-    tablaBody.appendChild(fila);
-  });
-}
+// 
 
 
 // Función para mostrar la vista de edición de un presupuesto
@@ -415,11 +607,13 @@ function editarPresupuesto(id) {
     // Crear las celdas de la tabla con los productos y la funcionalidad de editar
     fila.innerHTML = `
           <td>${producto.name}</td>
+          <td>${producto.description}</td>
+          <td>${producto.sku_number}</td>
+          <td>${producto.unit_price}</td>
           <td>
-              <input id="productQuantity_${nombreProductoID}" onchange="updateSubtotalProduct('${nombreProductoID}', ${producto.price})" type="number" value="${producto.quantity}" min="1"/>
+              <input id="productQuantity_${nombreProductoID}" onchange="updateSubtotalProduct('${nombreProductoID}', ${producto.unit_price})" type="number" value="${producto.quantity}" min="1"/>
           </td>
-          <td>${producto.price}</td>
-          <td id="productSubtotal_${nombreProductoID}">${producto.quantity * producto.price}</td>
+          <td id="productSubtotal_${nombreProductoID}">${producto.quantity * producto.unit_price}</td>
       `;
 
     tablaBody.appendChild(fila);
@@ -464,76 +658,72 @@ function updateSubtotalProduct(nombreProductoID, precio) {
 
 // Función para volver a la lista de presupuestos
 function volverALista() {
-  document.querySelector("#tabla-presupuestos").style.display = 'table';
-  document.querySelector("#vista-edicion").style.display = 'none';
+  
+  document.getElementById('vista-productos').style.display = 'block';
+  document.getElementById('vista-edicion').style.display = 'none';
+  let productoID = parseInt(document.getElementById('productID').innerHTML);
+  console.log(productoID)
 
-  const presupuestoActualID = parseInt(document.querySelector("#vista-edicion #idPresupuesto").innerHTML);
-  console.log(presupuestoActualID)
+  // Encuentra el índice del producto en el array
+const index = data.presupuesto.findIndex(d => d.id === productoID);
 
-  const onInit = app.initialized();
+if (index !== -1) {  // Si el producto existe en el array
+  // Convierte y valida los valores obtenidos del DOM
+  const newPrice = parseFloat(document.getElementById('editPrice').value);
+  const newQuantity = parseInt(document.getElementById('editQuantity').value);
 
-  onInit.then(function (_client) {
-    window.client = _client;
+  if (!isNaN(newPrice) && newPrice > 0) {
+    data.presupuesto[index].unit_price = newPrice;
+  } else {
+    console.error("El precio no es válido.");
+  }
 
-    // Intentamos obtener 'Quotes' de la base de datos
-    client.db.get("Quotes").then(function (quotesData) {
-      if (typeof quotesData === 'object' && Array.isArray(quotesData.presupuestos)) {
-        console.log("Datos de Quotes obtenidos:", quotesData);
+  if (!isNaN(newQuantity) && newQuantity > 0) {
+    data.presupuesto[index].quantity = newQuantity;
+  } else {
+    console.error("La cantidad no es válida.");
+  }
 
-        // Asegúrate de que el ID del presupuesto que se está editando sea el correcto
-        const presupuestoEditado = presupuestos.find(p => p.id === presupuestoActualID);
-        if (!presupuestoEditado) {
-          console.error("No se encontró el presupuesto que fue editado.");
-          return;
-        }
+  // Solo actualiza el subtotal si tanto el precio como la cantidad son válidos
+  if (!isNaN(data.presupuesto[index].unit_price) && !isNaN(data.presupuesto[index].quantity)) {
+    data.presupuesto[index].subtotal = data.presupuesto[index].unit_price * data.presupuesto[index].quantity;
+  }
 
-        // Imprimir el presupuesto que se está intentando actualizar
-        console.log("Presupuesto que se intenta actualizar:", presupuestoEditado);
+} else {
+  console.error("Producto no encontrado");
+}
+  let productTable = document.querySelector('#productTable tbody');
+  productTable.innerHTML = ""
 
-        // Calcular el nuevo total del presupuesto sumando los subtotales de los productos
-        let nuevoTotal = 0;
-        presupuestoEditado.productos.forEach(producto => {
-          const subtotalProducto = producto.price * producto.quantity; // Calcular subtotal de cada producto
-          nuevoTotal += subtotalProducto; // Sumar al total del presupuesto
-        });
+  console.log(data.presupuesto)
 
-        // Actualizar el campo 'price' del presupuesto con el nuevo total
-        presupuestoEditado.price = nuevoTotal.toFixed(2); // Formatear a 2 decimales
-
-        // Buscar el presupuesto en el array de Quotes por ID
-        const index = quotesData.presupuestos.findIndex(p => p.id === presupuestoEditado.id);
-        if (index !== -1) {
-          console.log("Presupuesto encontrado en la base de datos, índice:", index);
-
-          // Actualizar el presupuesto con los nuevos valores
-          quotesData.presupuestos[index] = {
-            ...quotesData.presupuestos[index],
-            productos: [...presupuestoEditado.productos], // Actualizar los productos editados
-            price: presupuestoEditado.price, // Actualizar el precio total con el nuevo cálculo
-            fechaModificacion: new Date().toISOString() // Añadir o actualizar la fecha de modificación
-          };
-
-          // Verificar los datos antes de guardarlos
-          console.log("Datos actualizados que se guardarán:", quotesData.presupuestos[index]);
-
-          // Guardar los cambios en la base de datos
-          client.db.set("Quotes", quotesData).then(function () {
-            console.log("Presupuesto actualizado correctamente en la base de datos.");
-            cargarPresupuestos(); // Recargar la lista de presupuestos (opcional)
-
-          }).catch(function (error) {
-            console.error("Error al actualizar el presupuesto en la base de datos:", error);
+  data.presupuesto.forEach((product)=>{
+    let row = document.createElement('tr')
+    row.innerHTML = `
+              <td>${product.name}</td>
+              <td>${product.description}</td>
+              <td>${product.sku_number}</td>
+              <td>${product.unit_price.toFixed(2)}</td>
+              <td>${product.quantity}</td>
+              <td class="product-subtotal">${product.unit_price * product.quantity}</td>
+              <td>
+                  <button class="edit-button">Edit</button>
+                  <button class="delete-button">Delete</button>
+              </td>
+          `;
+          productTable.appendChild(row);
+          
+          // Add event listeners for buttons
+          row.querySelector('.delete-button').addEventListener('click', function () {
+            deleteProduct(productoID);
           });
-        } else {
-          console.error("No se encontró el presupuesto en la base de datos.");
-        }
-      } else {
-        console.error("No se encontraron presupuestos en la base de datos.");
-      }
-    }).catch(function (error) {
-      console.error("Error al obtener los datos de 'Quotes':", error);
-    });
-  });
+          
+          row.querySelector('.edit-button').addEventListener('click', function () {
+            editProduct(productoID);
+          });
+        })
+        
+        updateSubtotal();
 
 }
 

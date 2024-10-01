@@ -28,19 +28,20 @@ section {
   padding: 10px;
 }
 
-.sectionTitle{
-  width: 80%;
-}
-.quotesTitle{
+.quotesFlex{
   display: flex;
   width: 100%;
   justify-content: space-between;
-  align-items: center;
-  button{
-    height: 50px;
-  }
+  align-items: end;
 }
 
+.hidden{
+  display: none;
+}
+
+.btn-open{
+  min-height: 40px;
+}
 .form{
   display: flex;
   gap: 10px;
