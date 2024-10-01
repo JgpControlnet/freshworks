@@ -8,6 +8,46 @@ html {
   box-sizing: inherit;
 }
 
+.flexRow{
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.buttonSub{
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+  gap: 5px;
+  font-weight: bold;
+  padding: 1%;
+  background: #a1b7ce;
+  border-radius: 10%;
+  border: 0.5px solid #7a8ea3;
+}
+
+.buttonSub:hover{
+  background: #7a8ea3;
+}
+
+.blueButton{
+  background: linear-gradient(180deg,#264966 0,#264966 100%);
+  border: 1px solid #12344d;
+  color: white;
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 10px;
+}
+
+.mt-10{
+  margin-top: 10px;
+}
+
+.blueButton:hover{
+  background: #05253f;
+}
+
+
 article {
   display: flex;
   flex-flow: column wrap;
@@ -26,6 +66,48 @@ section {
   border: 1px solid black;
   margin-bottom: 5px;
   padding: 10px;
+}
+
+.flexCol{
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  label{
+    font-size: 14px;
+    font-weight: 600;
+  }
+}
+
+.labelSingle{
+  text-wrap: nowrap;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.selection{
+  padding: 3%;
+  font-weight: bold;
+  border-radius: 5px;
+  background: white;
+  color: black;
+}
+
+.inputStyle{
+  padding: 2%;
+  font-weight: 600;
+  border: 0.5px solid rgb(190, 182, 182);
+  
+}
+
+.euroIcon{
+  background:url("../styles/images/euro-svgrepo-com.svg") no-repeat scroll 2px 1.5px;
+  padding-left: 25px;
+}
+
+
+.inputStyle:focus{
+  border: none;
+  outline: 1px solid #7a8ea3;
 }
 
 .quotesFlex{
@@ -48,7 +130,7 @@ section {
 }
 
 table {
-  margin-top: 15px;
+  margin-top: 25px;
   width: 100%;
   border-collapse: collapse;
 }
@@ -56,9 +138,11 @@ th, td {
   border: 1px solid #ccc;
   padding: 8px;
   text-align: left;
+  font-weight: 500;
 }
 th {
   background-color: #f4f4f4;
+  font-weight: bold;
 }
 .formStyle{
   display: flex;
@@ -66,9 +150,41 @@ th {
   margin-bottom: 10%;
   gap: 10px;
 }
-.flexCol{
+
+.actionButton{
+  background-color: #f5f7f9;
+cursor: pointer;
+border: 0.5px solid #7a8ea3;
+font-weight: bold;
+padding: 5%;
+
+}
+
+.actionFlex{
   display: flex;
-  flex-direction: column;
-  font-weight: bold;
-  font-size: large;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
+
+.totales{
+  margin-top: 20px;
+  display: flex;
+  width: 100%;
+  justify-content: end;
+  align-items: end;
+  text-align: end;
+  .textoTotal{
+    width: 40%;
+    background: #f5f7f9;
+    border-radius: 5%;
+    padding: 2.5%;
+    text-align: end;
+    h2{
+      font-size: 18px;
+      display: flex;
+      justify-content: space-between;
+      margin-right: 5%;
+    }
+  }
 }
