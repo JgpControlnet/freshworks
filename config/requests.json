@@ -2,10 +2,10 @@
     "getData": {
         "schema": {
             "method": "GET",
-            "host": "controlnet-755726388052007135.myfreshworks.com",
+            "host": "gorillaservices6.myfreshworks.com",
             "path": "/crm/sales/api/deals/filters",
             "headers": {
-                "Authorization": "Token token=ibp6o4rZYuu33aq6botXlQ",
+                "Authorization": "Token token=CWHYBx-ErMT9aTntW8EXHA",
                 "Content-Type": "application/json"
             }
         }
@@ -13,10 +13,10 @@
     "getDeal": {
         "schema":{
             "method": "GET",
-            "host": "controlnet-755726388052007135.myfreshworks.com",
+            "host": "gorillaservices6.myfreshworks.com",
             "path": "/crm/sales/api/deals/<%= context.id %>",
             "headers": {
-                "Authorization": "Token token=ibp6o4rZYuu33aq6botXlQ",
+                "Authorization": "Token token=CWHYBx-ErMT9aTntW8EXHA",
                 "Content-Type": "application/json"
             }
         }
@@ -24,10 +24,10 @@
     "getContact":{
         "schema":{
             "method": "GET",
-            "host": "controlnet-755726388052007135.myfreshworks.com",
+            "host": "gorillaservices6.myfreshworks.com",
             "path": "/crm/sales/api/contacts/<%= context.id %>",
             "headers": {
-                "Authorization": "Token token=ibp6o4rZYuu33aq6botXlQ",
+                "Authorization": "Token token=CWHYBx-ErMT9aTntW8EXHA",
                 "Content-Type": "application/json"
             }
         }
@@ -35,10 +35,10 @@
     "getAccount":{
         "schema":{
             "method": "GET",
-            "host": "controlnet-755726388052007135.myfreshworks.com",
+            "host": "gorillaservices6.myfreshworks.com",
             "path": "/crm/sales/api/sales_accounts/<%= context.id %>",
             "headers": {
-                "Authorization": "Token token=ibp6o4rZYuu33aq6botXlQ",
+                "Authorization": "Token token=CWHYBx-ErMT9aTntW8EXHA",
                 "Content-Type": "application/json"
             }
         }
@@ -46,10 +46,21 @@
     "getProduct":{
         "schema":{
             "method": "GET",
-            "host": "controlnet-755726388052007135.myfreshworks.com",
+            "host": "gorillaservices6.myfreshworks.com",
             "path": "/crm/sales/api/cpq/products/<%= context.id %>",
             "headers": {
-                "Authorization": "Token token=ibp6o4rZYuu33aq6botXlQ",
+                "Authorization": "Token token=CWHYBx-ErMT9aTntW8EXHA",
+                "Content-Type": "application/json"
+            }
+        }
+    },
+    "getProducts":{
+        "schema":{
+            "method": "GET",
+            "host": "av-sh-saleslogix-api-app-a.azurewebsites.net",
+            "path": "/v1/Product?language=en&search=<%= context.id %>",
+            "headers": {
+                "Av-Api-Key": "NUdfccsbDmpVN9VZlf4CqrRg9FiapkLD",
                 "Content-Type": "application/json"
             }
         }
@@ -57,10 +68,10 @@
     "createQuote":{
         "schema":{
             "method": "POST",
-            "host": "controlnet-755726388052007135.myfreshworks.com",
+            "host": "gorillaservices6.myfreshworks.com",
             "path": "/crm/sales/api/cpq/cpq_documents",
             "headers": {
-                "Authorization": "Token token=ibp6o4rZYuu33aq6botXlQ",
+                "Authorization": "Token token=CWHYBx-ErMT9aTntW8EXHA",
                 "Content-Type": "application/json"
             }
         }
@@ -68,10 +79,10 @@
     "addProductsQuote":{
         "schema":{
             "method": "PUT",
-            "host": "controlnet-755726388052007135.myfreshworks.com",
+            "host": "gorillaservices6.myfreshworks.com",
             "path": "/crm/sales/api/cpq/cpq_documents/<%= context.id %>?include=products",
             "headers": {
-                "Authorization": "Token token=ibp6o4rZYuu33aq6botXlQ",
+                "Authorization": "Token token=CWHYBx-ErMT9aTntW8EXHA",
                 "Content-Type": "application/json"
             }
         }
@@ -79,10 +90,10 @@
     "getDocuments":{
         "schema":{
             "method": "GET",
-            "host": "controlnet-755726388052007135.myfreshworks.com",
+            "host": "gorillaservices6.myfreshworks.com",
             "path": "/crm/sales/api/cpq/cpq_documents",
             "headers": {
-                "Authorization": "Token token=ibp6o4rZYuu33aq6botXlQ",
+                "Authorization": "Token token=CWHYBx-ErMT9aTntW8EXHA",
                 "Content-Type": "application/json"
             }
         }
@@ -90,10 +101,10 @@
     "getCurrencies":{
         "schema":{
             "method": "GET",
-            "host": "controlnet-755726388052007135.myfreshworks.com",
+            "host": "gorillaservices6.myfreshworks.com",
             "path": "/crm/sales/api/selector/currencies",
             "headers": {
-                "Authorization": "Token token=ibp6o4rZYuu33aq6botXlQ",
+                "Authorization": "Token token=CWHYBx-ErMT9aTntW8EXHA",
                 "Content-Type": "application/json"
             }
         }
@@ -101,10 +112,10 @@
     "createProduct":{
     "schema":{
             "method": "POST",
-            "host": "controlnet-755726388052007135.myfreshworks.com",
+            "host": "gorillaservices6.myfreshworks.com",
             "path": "/crm/sales/api/cpq/products",
             "headers": {
-                "Authorization": "Token token=ibp6o4rZYuu33aq6botXlQ",
+                "Authorization": "Token token=CWHYBx-ErMT9aTntW8EXHA",
                 "Content-Type": "application/json"
             }
         }
@@ -112,10 +123,10 @@
     "AddProductPrice":{
         "schema":{
                 "method": "PUT",
-                "host": "controlnet-755726388052007135.myfreshworks.com",
+                "host": "gorillaservices6.myfreshworks.com",
                 "path": "/crm/sales/api/cpq/products/<%= context.id %>?include=product_pricings",
                 "headers": {
-                    "Authorization": "Token token=ibp6o4rZYuu33aq6botXlQ",
+                    "Authorization": "Token token=CWHYBx-ErMT9aTntW8EXHA",
                     "Content-Type": "application/json"
                 }
             }

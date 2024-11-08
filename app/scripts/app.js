@@ -1,208 +1,228 @@
-let presupuestos = [];
+var presupuestos = [];
+var currentDealId = 0;
 document.onreadystatechange = function () {
   if (document.readyState === 'interactive') renderApp();
   function renderApp() {
     var onInit = app.initialized();
 
-    onInit.then(function (_client) {
+    onInit.then(getClient).catch(handleErr);
+
+    function getClient(_client) {
       window.client = _client;
-      getDocuments()
-      .then((documents) => {
-        let documentos = JSON.parse(documents.response)
-        console.log(documentos)
-        const distinctTemplates = [...new Set(documentos.cpq_documents.map(doc => doc.cpq_document_template_name))];
+      updateTemplateSelector();
+      client.data.get("deal").then(function (dealData) {
+
+        console.log(dealData);
+
+        const sumarMes = (fecha) => {
+          // Sumar un mes a la fecha
+          fecha.setMonth(fecha.getMonth() + 1);
+          return fecha;
+        };
+
+        // Crear una nueva fecha
+        let fechaActual = new Date();
+
+        // Obtener la fecha dentro de un mes
+        let fechaDentroDeUnMes = sumarMes(fechaActual);
+
+        // Mostrar la fecha en el formato deseado
+        console.log(fechaDentroDeUnMes.toString());
+
+        let body = {};
+
+        currentDealId = dealData.deal.id;
+        body.deal_id = parseInt(dealData.deal.id)
+        body.contact_id = parseInt(dealData.deal.contact_ids[0])
+        body.sales_account_id = parseInt(dealData.deal.sales_account_id)
+        body.document_type = "Quote"
+        body.stage = "Draft"
+        body.valid_till = fechaDentroDeUnMes.toString()
+
+        getAccount(dealData.deal.sales_account_id)
+          .then((salesAccount) => {
+            if (salesAccount) {
+              let account = JSON.parse(salesAccount.response).sales_account
+              console.log("account", account)
+              body.shipping_address = account.address
+              body.shipping_city = account.city
+              body.shipping_state = account.state
+              body.shipping_zipcode = account.zipcode
+              body.shipping_country = account.country
+              body.billing_address = account.address
+              body.billing_city = account.city
+              body.billing_state = account.state
+              body.billing_zipcode = account.zipcode
+              body.billing_country = account.country
+            } else {
+              console.log("Failed to retrieve the account.");
+            }
+
+            body.amount = "100"
+            body.display_name = "test"
+            body.currency_code = "EUR"
+            body.owner_id = parseInt(dealData.deal.owner_id)
+            body.territory_id = 1
+            body.cpq_document_template_name = "Sample Template"
+
+            console.log("body", body)
+            // createQuote(body)
+          })
+          .catch((error) => {
+            console.error("Error while fetching the account:", error);
+          });
 
 
-        const selectElement = document.getElementById('templateSelect');
 
-        distinctTemplates.forEach(template => {
-          const option = document.createElement('option');
-          option.value = template;
-          option.textContent = template;
-          selectElement.appendChild(option);
+
+
+        getQuote(dealData.deal.id);
+
+
+      }).catch(function (error) {
+        console.error("Error fetching deal context: ", error);
       });
-      })
-    });
+
+
+      // limpiarQuotes();
+      // limpiarTemplates();
+    }
+
 
   }
 };
 
-async function createDocumentQuote() {
-  const onInit = app.initialized();
+async function updateTemplateSelector() {
+  try {
+    let data = await client.db.get("Templates");
+    console.log("Templates", data);
+    const selectElement = document.getElementById("templateSelect");
 
-  onInit.then(function (_client) {
-    window.client = _client;
-    client.data.get("deal").then(function (dealData) {
-      const sumarMes = (fecha) => {
-        // Sumar un mes a la fecha
-        fecha.setMonth(fecha.getMonth() + 1);
-        return fecha;
-      };
-
-      // Crear una nueva fecha
-      let fechaActual = new Date();
-
-      // Obtener la fecha dentro de un mes
-      let fechaDentroDeUnMes = sumarMes(fechaActual);
-
-      // Mostrar la fecha en el formato deseado
-      console.log(fechaDentroDeUnMes.toString());
-
-      let body = {};
-
-      console.log("Deal",dealData)
-
-      body.deal_id = parseInt(dealData.deal.id);
-      body.contact_id = parseInt(dealData.deal.contact_ids[0]);
-      body.sales_account_id = parseInt(dealData.deal.sales_account_id);
-      body.document_type = "Quote";
-      body.stage = "Draft";
-      body.valid_till = fechaDentroDeUnMes.toString();
-
-      getAccount(dealData.deal.sales_account_id)
-        .then((salesAccount) => {
-          if (salesAccount) {
-            let account = JSON.parse(salesAccount.response).sales_account;
-            console.log("account", account);
-            body.shipping_address = account.address;
-            body.shipping_city = account.city;
-            body.shipping_state = account.state;
-            body.shipping_zipcode = account.zipcode;
-            body.shipping_country = account.country;
-            body.billing_address = account.address;
-            body.billing_city = account.city;
-            body.billing_state = account.state;
-            body.billing_zipcode = account.zipcode;
-            body.billing_country = account.country;
-          } else {
-            console.log("Failed to retrieve the account.");
-          }
-
-          body.amount = "100";
-          body.display_name = "test";
-          body.currency_code = "EUR";
-          body.owner_id = parseInt(dealData.deal.owner_id);
-          body.territory_id = 1;
-          body.cpq_document_template_name = "Sample Template";
-
-          createQuote(body)
-  .then((quote) => {
-    let docQuote = JSON.parse(quote.response);
-    console.log("docQuote", docQuote);
-
-    // Crear un array de promesas para procesar cada producto
-    const productPromises = data.presupuesto.map((product) => {
-      return getProduct(product.id)
-        .then((producto) => {
-          if (producto.status !== 200) {
-            console.log("hay que crear el producto", product.id);
-            let newProduct = {
-              product: {
-                name: product.name,
-                description: product.description,
-                sku_number: product.sku_number,
-                base_currency_amount: product.unit_price,
-              },
-            };
-
-            // Crear el producto si no existe
-            return createProduct(newProduct).then((response) => {
-              console.log("creaproducto", response);
-              let nuevoProducto = JSON.parse(response.response);
-              product.id = nuevoProducto.product.id;
-
-              // Obtener y agregar el precio del producto
-              return getCurrencies().then((currencies) => {
-                console.log(currencies.response);
-                let currencieList = JSON.parse(currencies.response);
-                console.log("currencieList", currencieList);
-                console.log("currency_id", dealData.deal.currency_id);
-
-
-                let currencyCode = currencieList.currencies.find(
-                  (d) => parseInt(d.id) === parseInt(dealData.deal.currency_id)
-                );
-
-                console.log("currencyCode", currencyCode);
-
-                let productPrice = {
-                  product: {
-                    pricing_type: 1,
-                    product_pricings: [
-                      {
-                        currency_code: currencyCode.currency_code,
-                        unit_price: product.unit_price,
-                      },
-                    ],
-                  },
-                };
-
-                // Agregar el precio del producto
-                return addProductPrice(product.id, productPrice);
-              });
-            });
-          } else {
-            // Si el producto ya existe, no es necesario crearlo ni agregar precios
-            return Promise.resolve();
-          }
-        });
+    data.templates.forEach(tmp => {
+      // Crea un nuevo elemento <option>
+      console.log(tmp)
+      const option = document.createElement("option");
+      // Asigna el texto y el valor del <option>
+      option.textContent = tmp.name;
+      option.value = tmp.name;
+      // Añade el <option> al <select>
+      selectElement.appendChild(option);
     });
 
-    // Esperar a que todas las promesas de los productos se resuelvan
-    return Promise.all(productPromises)
-      .then(() => {
-        // Una vez que todos los productos han sido procesados, se llama a addProducts
-        let cuerpo = {
-          cpq_document: {
-            products: data.presupuesto,
-          },
-        };
+  } catch (error) {
+    console.error(error)
+  }
+}
 
-        return addProducts(docQuote.cpq_document.id, cuerpo)
-      })
-      .then(async (respuesta) => {
-        // Aquí se maneja la respuesta de addProducts
-        console.log("addProducts respuesta:", respuesta);
-        if(respuesta.status === 200){
-          console.log("Presupuesto creado correctamente");
-          try {
-            let data = await client.interface.trigger("showNotify", {
-              type: "success",
-              title: "Success!!", /* The "title" should be plain text */
-              message: "The Quote has been created succesfully" /* The "message" should be plain text */
-            });
-              console.log(data); // success message
-              document.querySelector('#productTable tbody').innerHTML = ""
-              document.getElementById('productForm').reset()
+async function goToCreate() {
+  let productTable = document.querySelector('#productTable tbody');
+  productTable.innerHTML = "";
+  document.querySelector("#tabla-presupuestos").classList.add("d-none");
+  document.querySelector("#tabla-presupuestos").classList.remove("d-table");
+  document.querySelector("#vista-productos").classList.toggle("d-none");
+  document.querySelector("#buttonCreate").classList.add("d-none");
 
-          } catch (error) {
-              // failure operation
-              console.error(error);
-          }
-        }else{
-          console.log("Error al crear el presupuesto");
-        }
-      })
-      .catch((error) => {
-        console.error("Error procesando los productos o agregando el presupuesto:", error);
-      });
-  });
+}
 
-          
-
-
-        })
-        .catch((error) => {
-          console.error("Error while fetching the account:", error);
-        });
-    }).catch(function (error) {
-      console.error("Error fetching deal context: ", error);
-    });
-
-  });
+async function getQuote(idDeal) {
+  try {
+    let data = await client.db.get("Quotes");
+    console.log("Aqui", data)
+    presupuestos = data.presupuestos;
+    cargarPresupuestos(idDeal);
+    // success
+    // "data" is { "jiraIssueId": 15213 }
+  } catch (error) {
+    console.error(error)
+  }
 }
 
 
+async function createDocumentQuote() {
+
+  
+
+  var element = document.getElementById('outputDiv').innerHTML;
+  var opt = {
+    margin: 0.5,
+    filename: 'testQuote.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 1 },
+    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+  };
+
+  // New Promise-based usage:
+  html2pdf().set(opt).from(element).save();
+}
+
+
+
+
+async function checkProducts(productos) {
+  productos.map((product) => {
+    return getProduct(product.id)
+      .then((producto) => {
+        if (producto.status !== 200) {
+          console.log("hay que crear el producto", product.id);
+          let newProduct = {
+            product: {
+              name: product.name,
+              description: product.description,
+              sku_number: product.sku_number,
+              base_currency_amount: product.unit_price,
+            },
+          };
+
+
+          // Crear el producto si no existe
+          return createProduct(newProduct).then((response) => {
+            console.log("creaproducto", response);
+            let nuevoProducto = JSON.parse(response.response);
+            product.id = nuevoProducto.product.id;
+
+            updateProductPrice(producto.id);
+
+
+          });
+        } else {
+          // Si el producto ya existe, no es necesario crearlo ni agregar precios
+          return Promise.resolve();
+        }
+      });
+  });
+}
+
+async function updateProductPrice(productoId) {
+  // Obtener y agregar el precio del producto
+  return getCurrencies().then((currencies) => {
+    console.log(currencies.response);
+    let currencieList = JSON.parse(currencies.response);
+    console.log("currencieList", currencieList);
+    console.log("currency_id", dealData.deal.currency_id);
+
+
+    let currencyCode = currencieList.currencies.find(
+      (d) => parseInt(d.id) === parseInt(dealData.deal.currency_id)
+    );
+
+    console.log("currencyCode", currencyCode);
+
+    let productPrice = {
+      product: {
+        pricing_type: 1,
+        product_pricings: [
+          {
+            currency_code: currencyCode.currency_code,
+            unit_price: product.unit_price,
+          },
+        ],
+      },
+    };
+
+    // Agregar el precio del producto
+    return addProductPrice(productoId, productPrice);
+  });
+}
 
 async function getAccount(account_id) {
   try {
@@ -217,6 +237,16 @@ async function getAccount(account_id) {
 async function getProduct(productId) {
   try {
     let data = await client.request.invokeTemplate("getProduct", { "context": { "id": productId } })
+    return data
+    // console.log(JSON.stringify(data))
+  } catch (err) {
+    return err
+  }
+}
+
+async function getProducts(searchString) {
+  try {
+    let data = await client.request.invokeTemplate("getProducts", { "context": { "id": searchString } })
     return data
     // console.log(JSON.stringify(data))
   } catch (err) {
@@ -245,7 +275,7 @@ async function getCurrencies() {
 
 async function createQuote(body) {
   try {
-    let data = await client.request.invokeTemplate("createQuote",  { "context": {  }  , "body": JSON.stringify(body) })
+    let data = await client.request.invokeTemplate("createQuote", { "context": {}, "body": JSON.stringify(body) })
     return data
   } catch (err) {
     console.log(err)
@@ -255,7 +285,7 @@ async function createQuote(body) {
 async function createProduct(body) {
   try {
     console.log(body)
-    let data = await client.request.invokeTemplate("createProduct", { "context": {}  , "body": JSON.stringify(body)  })
+    let data = await client.request.invokeTemplate("createProduct", { "context": {}, "body": JSON.stringify(body) })
     console.log(JSON.parse(data.response))
     return data
   } catch (err) {
@@ -263,10 +293,10 @@ async function createProduct(body) {
   }
 }
 
-async function addProducts(id,body) {
+async function addProducts(id, body) {
   try {
     console.log(id)
-    let data = await client.request.invokeTemplate("addProductsQuote",  { "context": { id }  , "body": JSON.stringify(body)  })
+    let data = await client.request.invokeTemplate("addProductsQuote", { "context": { id }, "body": JSON.stringify(body) })
     return data
   } catch (err) {
     return err
@@ -274,9 +304,9 @@ async function addProducts(id,body) {
 
 }
 
-async function addProductPrice(id,body) {
+async function addProductPrice(id, body) {
   try {
-    let data = await client.request.invokeTemplate("AddProductPrice",  { "context": { id }  , "body": JSON.stringify(body)  })
+    let data = await client.request.invokeTemplate("AddProductPrice", { "context": { id }, "body": JSON.stringify(body) })
     return data
   } catch (err) {
     return err
@@ -295,9 +325,47 @@ const taxRate = 0.10; // 10% tax
 let data = { presupuesto: [] };
 let idProducto = 1;
 
+let inputSearch = document.getElementById('searchProduct');
+let searchButton = document.getElementById('searchButton');
+let productsList = document.getElementById('productList'); // Contenedor donde se mostrarán los productos
+
+searchButton.addEventListener('click', async function () {
+  // Llamada a la API para obtener los productos
+  let response = await getProducts(inputSearch.value);
+  let productos = JSON.parse(response.response); // Parseo de la respuesta JSON si es necesario
+  console.log(response.response)
+  // Limpia el contenedor antes de agregar nuevos resultados
+  productsList.innerHTML = '';
+
+  // Recorre los productos y crea un div para cada uno
+  productos.forEach(product => {
+    // Crear un nuevo div para cada producto
+    let productDiv = document.createElement('div');
+    productDiv.classList.add('product-item'); // Agrega una clase para dar estilo, si es necesario
+
+    // Inserta el contenido HTML para el producto
+    productDiv.innerHTML = `
+      <h3>${product.name}</h3>
+      <p><strong>ID:</strong> ${product.cmProductId}</p>
+      <p><strong>Mod Code:</strong> ${product.modcode}</p>
+      <p><strong>Product Group:</strong> ${product.productGroupName}</p>
+      <p><strong>Product Name:</strong> ${product.name}</p>
+    `;
+    
+    productDiv.style.border = "1px solid black";
+    productDiv.style.background = "white";
+    productDiv.style.padding = "2%";
+    
+
+
+    // Agrega el div del producto al contenedor principal
+    productsList.appendChild(productDiv);
+  });
+});
+
 productForm.addEventListener('submit', function (event) {
   event.preventDefault();
-
+  document.querySelector("#emptyError").classList.add("d-none");
   const productName = document.getElementById('productName').value;
   const productDescription = document.getElementById('description').value;
   const sku_number = document.getElementById('sku_number').value;
@@ -306,7 +374,7 @@ productForm.addEventListener('submit', function (event) {
   const productSubtotal = productPrice * productQuantity;
 
   const productData = {
-    id : idProducto,
+    id: idProducto,
     name: productName,
     description: productDescription,
     sku_number: sku_number,
@@ -314,7 +382,7 @@ productForm.addEventListener('submit', function (event) {
     quantity: productQuantity,
     subtotal: productSubtotal
   };
-  idProducto ++;
+  idProducto++;
 
   // Add product data to the JSON object
   data.presupuesto.push(productData);
@@ -370,30 +438,29 @@ function updateSubtotal() {
     return acumulador + (producto.unit_price * producto.quantity);
   }, 0);  // Inicializa el acumulador en 0
 
-  subtotal = total;
+  let subtotal = total;
   subtotalElement.textContent = subtotal.toFixed(2);
-  updateTaxesAndTotal();
 }
 
 function deleteProduct(idProducto) {
-   // Encuentra el índice del producto en el array
-   const index = data.presupuesto.findIndex(d => d.id === idProducto);
+  // Encuentra el índice del producto en el array
+  const index = data.presupuesto.findIndex(d => d.id === idProducto);
 
-   if (index !== -1) {  // Si el producto existe en el array
-     // Elimina el producto del array
-     data.presupuesto.splice(index, 1);
-     console.log(`Producto con ID ${idProducto} eliminado exitosamente.`);
-   } else {
-     console.error("Producto no encontrado");
-   }
+  if (index !== -1) {  // Si el producto existe en el array
+    // Elimina el producto del array
+    data.presupuesto.splice(index, 1);
+    console.log(`Producto con ID ${idProducto} eliminado exitosamente.`);
+  } else {
+    console.error("Producto no encontrado");
+  }
 
 
-   let productTable = document.querySelector('#productTable tbody');
-   productTable.innerHTML = ""
+  let productTable = document.querySelector('#productTable tbody');
+  productTable.innerHTML = ""
 
-    data.presupuesto.forEach((product)=>{
-      let row = document.createElement('tr')
-      row.innerHTML = `
+  data.presupuesto.forEach((product) => {
+    let row = document.createElement('tr')
+    row.innerHTML = `
               <td>${product.name}</td>
               <td>${product.description}</td>
               <td>${product.sku_number}</td>
@@ -405,24 +472,24 @@ function deleteProduct(idProducto) {
                   <button class="delete-button">Delete</button>
               </td>
           `;
-          productTable.appendChild(row);
-          
-          // Add event listeners for buttons
-          row.querySelector('.delete-button').addEventListener('click', function () {
-            deleteProduct(productoID);
-          });
-          
-          row.querySelector('.edit-button').addEventListener('click', function () {
-            editProduct(productoID);
-          });
-        })
-        updateSubtotal();
+    productTable.appendChild(row);
+
+    // Add event listeners for buttons
+    row.querySelector('.delete-button').addEventListener('click', function () {
+      deleteProduct(productoID);
+    });
+
+    row.querySelector('.edit-button').addEventListener('click', function () {
+      editProduct(productoID);
+    });
+  })
+  updateSubtotal();
 }
 
 function editProduct(idProducto) {
-  
- 
-  
+
+
+
   const productTable = document.getElementById('tabla-edicion').querySelector('tbody');
   console.log(productTable)
   document.querySelector('#tabla-edicion tbody').innerHTML = ""
@@ -430,8 +497,8 @@ function editProduct(idProducto) {
   const newRow = document.createElement('tr');
 
   const product = data.presupuesto.find(d => d.id == idProducto);
-if (product) {
-  newRow.innerHTML = `
+  if (product) {
+    newRow.innerHTML = `
       <td id="productID" class="hidden">${product.id}</td>
       <td>${product.name}</td>
       <td>${product.description}</td>
@@ -441,56 +508,57 @@ if (product) {
       <td id="editSubtotal">${product.unit_price * product.quantity}</td>
 
   `;
-} else {
-  console.error("Producto no encontrado");
-}
-    
+  } else {
+    console.error("Producto no encontrado");
+  }
 
- 
 
-  
-  
+
+
+
+
   productTable.appendChild(newRow);
-  document.getElementById('vista-edicion').style.display = 'block';
-  document.getElementById('vista-productos').style.display = 'none';
+  document.getElementById('vista-edicion').classList.add = 'd-block';
+  document.getElementById('vista-productos').classList.add = 'd-none';
 
 }
 
-function updateTaxesAndTotal() {
-  const taxes = subtotal * taxRate;
-  const total = subtotal + taxes;
 
-  taxesElement.textContent = taxes.toFixed(2);
-  totalElement.textContent = total.toFixed(2);
+function editSubtotal() {
+  const price = document.getElementById('editPrice')
+  const quantity = document.getElementById('editQuantity')
+  const subtotal = document.getElementById('editSubtotal')
+
+  subtotal.innerHTML = price.value * quantity.value;
 }
 
 
-function editSubtotal(){
-    const price = document.getElementById('editPrice')
-    const quantity = document.getElementById('editQuantity')
-    const subtotal = document.getElementById('editSubtotal')
-
-    subtotal.innerHTML = price.value * quantity.value;
-}
-
-
-function StoreQuotes() {
+async function StoreQuotes() {
   const onInit = app.initialized();
 
-  onInit.then(function (_client) {
+  onInit.then(async function (_client) {
     window.client = _client;
+
+    let quotes = await client.db.get("Quotes");
+    console.log("Quotes", quotes)
+
     client.db.set("Quotes", data).then(
       function () {
         console.log("stored Ok")
         // success operation
         // "data" value is { "Created" : true }
-      },
-      function (error) {
-        // failure operation
-        console.log(error)
+      })
+      .catch(function (err) {
+        if (err) {
+          console.error('Error - ', err);
+        }
       });
-  });
-
+  })
+    .catch(function (err) {
+      if (err) {
+        console.error('Error - ', err);
+      }
+    });
 }
 
 function storeDataStorage() {
@@ -502,16 +570,21 @@ function storeDataStorage() {
     // Verificamos si el array 'presupuesto' no está vacío
     if (data.presupuesto.length > 0) {
       console.log("Products in current presupuesto:", data.presupuesto);
-
-      const taxes = subtotal * taxRate;
-      const total = subtotal + taxes;
-      // Creamos un nuevo presupuesto con una fecha u otros detalles si es necesario
+      let idDeal = 0;
+      let total = document.getElementById("subtotal").innerHTML;
       const newPresupuesto = {
         id: Date.now(), // Un identificador único, puede ser un timestamp
+        idDeal: idDeal,
         productos: [...data.presupuesto], // Los productos dentro del presupuesto
         fechaCreacion: new Date().toISOString(), // Agregar fecha de creación
-        price: total.toFixed(2) // Precio total del presupuesto
+        price: parseFloat(total).toFixed(2) // Precio total del presupuesto
       };
+      client.data.get("deal").then(function (dealData) {
+        console.log("probando", dealData.deal.id)
+        newPresupuesto.idDeal = dealData.deal.id;
+      })
+      // Creamos un nuevo presupuesto con una fecha u otros detalles si es necesario
+
 
       // Intentamos obtener 'Quotes' de la base de datos
       client.db.get("Quotes").then(
@@ -527,12 +600,12 @@ function storeDataStorage() {
             client.db.set("Quotes", quotesData).then(
               function (response) {
                 console.log("New presupuesto added successfully:", response);
-                closeModalAndReload();
-              },
-              function (error) {
-                console.error("Error updating Quotes:", error);
-              }
-            );
+              })
+              .catch(function (err) {
+                if (err) {
+                  console.error('Error - ', err);
+                }
+              });
           } else {
             // Si 'Quotes' no tiene un array 'presupuestos', lo inicializamos
             console.log("Quotes does not have a 'presupuestos' array, initializing.");
@@ -544,12 +617,21 @@ function storeDataStorage() {
             client.db.set("Quotes", newQuotes).then(
               function (response) {
                 console.log("Quotes initialized and presupuesto stored:", response);
-              },
-              function (error) {
-                console.error("Error initializing and storing Quotes:", error);
-              }
-            );
+              })
+              .catch(function (err) {
+                if (err) {
+                  console.error('Error - ', err);
+                }
+              });
           }
+          data.presupuesto = [];
+          updateSubtotal();
+
+          console.log("Presupuestos", data.presupuesto);
+          getQuote(currentDealId);
+          document.querySelector("#vista-productos").classList.add("d-none");
+          document.querySelector("#tabla-presupuestos").classList.remove("d-none");
+          document.querySelector("#buttonCreate").classList.remove("d-none");
         },
         function () {
           // Si 'Quotes' no existe, lo creamos como un objeto con un array 'presupuestos'
@@ -561,35 +643,62 @@ function storeDataStorage() {
           client.db.set("Quotes", newQuotes).then(
             function (response) {
               console.log("Quotes created and presupuesto stored:", response);
-            },
-            function (error) {
-              console.error("Error creating and storing Quotes:", error);
-            }
-          );
+            })
+            .catch(function (err) {
+              if (err) {
+                console.error('Error - ', err);
+              }
+            });
         }
-      );
+      )
     } else {
       console.error("Error: presupuesto array is empty.");
+      document.querySelector("#emptyError").classList.remove("d-none");
     }
+
+  })
+
+    .catch(function (err) {
+      if (err) {
+        console.error('Error - ', err);
+      }
+    });
+}
+
+
+function cargarPresupuestos(idDeal) {
+  const tablaBody = document.querySelector("#tabla-presupuestos tbody");
+  tablaBody.innerHTML = ''; // Limpiar la tabla antes de cargar
+
+  presupuestos.forEach(presupuesto => {
+    if (presupuesto.idDeal == idDeal) {
+      const fila = document.createElement('tr');
+
+      // Crear columnas para ID, Fecha y Precio
+      fila.innerHTML = `
+            <td>${presupuesto.id}</td>
+            <td>${new Date(presupuesto.fechaCreacion).toLocaleString()}</td>
+            <td>${presupuesto.price}</td>
+            <td><button onclick="editarPresupuesto(${presupuesto.id})" class="blueButton">Editar</button></td>
+        `;
+
+      tablaBody.appendChild(fila);
+    } else {
+      const fila = document.createElement('div');
+
+      // Crear columnas para ID, Fecha y Precio
+      fila.innerHTML = `
+            <strong>There is no Quotes for this Deal</strong>`;
+      document.querySelector("#tabla-presupuestos").classList.add('d-none');
+      document.querySelector("#noQuotes").classList.remove('d-none');
+
+    }
+
   });
 }
 
 
 
-
-
-async function getQuote() {
-  try {
-    let data = await client.db.get("Quotes");
-    console.log(data)
-    presupuestos = data.presupuestos;
-    cargarPresupuestos();
-    // success
-    // "data" is { "jiraIssueId": 15213 }
-  } catch (error) {
-    console.error(error)
-  }
-}
 
 // 
 
@@ -598,10 +707,10 @@ async function getQuote() {
 function editarPresupuesto(id) {
   const presupuesto = presupuestos.find(p => p.id === id);
   if (!presupuesto) return;
-
+  console.log("a")
   // Ocultar la tabla de presupuestos y mostrar la vista de edición
-  document.querySelector("#tabla-presupuestos").style.display = 'none';
-  document.querySelector("#vista-edicion").style.display = 'block';
+  document.getElementById("vista-edicion").classList.remove('d-none');
+  console.log(document.getElementById("vista-edicion"))
   document.querySelector("#vista-edicion #idPresupuesto").innerHTML = id;
 
 
@@ -668,47 +777,41 @@ function updateSubtotalProduct(nombreProductoID, precio) {
 
 
 // Función para volver a la lista de presupuestos
-function volverALista() {
-  
-  document.getElementById('vista-productos').style.display = 'block';
-  document.getElementById('vista-edicion').style.display = 'none';
-  let productoID = parseInt(document.getElementById('productID').innerHTML);
-  console.log(productoID)
+async function volverALista() {
 
-  // Encuentra el índice del producto en el array
-const index = data.presupuesto.findIndex(d => d.id === productoID);
+  document.querySelector("#vista-productos").classList.add("d-none");
+  document.querySelector("#tabla-presupuestos").classList.add("d-table");
+  document.querySelector("#buttonCreate").classList.remove("d-none");
 
-if (index !== -1) {  // Si el producto existe en el array
-  // Convierte y valida los valores obtenidos del DOM
-  const newPrice = parseFloat(document.getElementById('editPrice').value);
-  const newQuantity = parseInt(document.getElementById('editQuantity').value);
+  let presupuestoID = parseInt(document.getElementById('idPresupuesto').innerHTML);
+  console.log(presupuestoID)
 
-  if (!isNaN(newPrice) && newPrice > 0) {
-    data.presupuesto[index].unit_price = newPrice;
-  } else {
-    console.error("El precio no es válido.");
+  try {
+
+    await updatePresupuesto(presupuestoID).then(() => {
+
+      getQuote(currentDealId);
+    })
+  } catch (err) {
+    console.error(err);
   }
 
-  if (!isNaN(newQuantity) && newQuantity > 0) {
-    data.presupuesto[index].quantity = newQuantity;
-  } else {
-    console.error("La cantidad no es válida.");
-  }
 
-  // Solo actualiza el subtotal si tanto el precio como la cantidad son válidos
-  if (!isNaN(data.presupuesto[index].unit_price) && !isNaN(data.presupuesto[index].quantity)) {
-    data.presupuesto[index].subtotal = data.presupuesto[index].unit_price * data.presupuesto[index].quantity;
-  }
 
-} else {
-  console.error("Producto no encontrado");
+
+  // await printTable(data.presupuesto, productoID);
+
+  // updateSubtotal();
+
 }
+
+async function printTable(presupuesto, productoID) {
   let productTable = document.querySelector('#productTable tbody');
   productTable.innerHTML = ""
 
   console.log(data.presupuesto)
 
-  data.presupuesto.forEach((product)=>{
+  presupuesto.forEach((product) => {
     let row = document.createElement('tr')
     row.innerHTML = `
               <td>${product.name}</td>
@@ -734,28 +837,85 @@ if (index !== -1) {  // Si el producto existe en el array
                   </div>
               </td>
           `;
-          productTable.appendChild(row);
-          
-          // Add event listeners for buttons
-          row.querySelector('.delete-button').addEventListener('click', function () {
-            deleteProduct(productoID);
-          });
-          
-          row.querySelector('.edit-button').addEventListener('click', function () {
-            editProduct(productoID);
-          });
-        })
-        
-        updateSubtotal();
+    productTable.appendChild(row);
 
+    // Add event listeners for buttons
+    row.querySelector('.delete-button').addEventListener('click', function () {
+      deleteProduct(productoID);
+    });
+
+    row.querySelector('.edit-button').addEventListener('click', function () {
+      editProduct(productoID);
+    });
+  })
 }
+
+async function checkProduct(index) {
+
+  // Convierte y valida los valores obtenidos del DOM
+  const newPrice = parseFloat(document.getElementById('editPrice').value);
+  const newQuantity = parseInt(document.getElementById('editQuantity').value);
+  console.log(presupuestos[index])
+  if (!isNaN(newPrice) && newPrice > 0) {
+    data.presupuesto[index].unit_price = newPrice;
+  } else {
+    console.error("El precio no es válido.");
+  }
+  if (!isNaN(newQuantity) && newQuantity > 0) {
+    data.presupuesto[index].quantity = newQuantity;
+  } else {
+    console.error("La cantidad no es válida.");
+  }
+  if (!isNaN(data.presupuesto[index].unit_price) && !isNaN(data.presupuesto[index].quantity)) {
+    data.presupuesto[index].subtotal = data.presupuesto[index].unit_price * data.presupuesto[index].quantity;
+  }
+}
+
+async function updatePresupuesto(idPresupuesto) {
+
+  const onInit = app.initialized();
+
+
+  onInit.then(function (_client) {
+    window.client = _client;
+
+    const presupuesto = presupuestos.find(p => p.id === idPresupuesto);
+
+    if (presupuesto) {
+      // Calcula el total de los productos en el presupuesto
+      let totalPres = 0;
+      presupuesto.productos.forEach(product => {
+        totalPres += product.unit_price * product.quantity;
+      });
+
+      // Actualiza el precio total del presupuesto
+      presupuesto.price = totalPres;
+    } else {
+      console.log("Presupuesto no encontrado.");
+    }
+
+
+    // Obtener 
+
+    client.db.update("Quotes", "set", { "presupuestos": presupuestos }).then(
+      function (data) {
+        // success operation
+        // "data" value is { "Updated" : true}
+        console.log(data)
+      }, function (error) {
+        // failure operation
+        console.log(error)
+      });
+  });
+}
+
 
 function limpiarQuotes() {
   const onInit = app.initialized();
 
   onInit.then(function (_client) {
     window.client = _client;
-    
+
 
 
     // Obtener los datos actuales de 'Quotes'
@@ -769,20 +929,65 @@ function limpiarQuotes() {
         // Guardar los datos limpios en la base de datos
         client.db.set("Quotes", datosLimpios).then(function () {
           console.log("Quotes ha sido limpiado correctamente.");
-        }).catch(function (error) {
-          console.error("Error al limpiar Quotes:", error);
+        }).catch(function (err) {
+          if (err) {
+            console.error('Error al limpiar quotes - ', err);
+          }
         });
       } else {
         console.error("No se encontró la estructura de datos de Quotes.");
       }
-    }).catch(function (error) {
-      // console.error("Error al obtener los datos de Quotes:", error);
-      throw new Error("Currency ID not found. Please verify the currency list and the deal data.", error);
+    }).catch(function (err) {
+      if (err) {
+        console.error("Currency ID not found. Please verify the currency list and the deal data.", err);
+      }
     });
   })
-  .catch((err)=>{
-    console.log(err)
-  });
+    .catch(function (err) {
+      if (err) {
+        console.error("Error: ", error);
+      }
+    });
+}
+
+function limpiarTemplates() {
+  const onInit = app.initialized();
+
+  onInit.then(function (_client) {
+    window.client = _client;
+
+
+
+    // Obtener los datos actuales de 'Quotes'
+    client.db.get("Templates").then(function (quotesData) {
+      if (typeof quotesData === 'object') {
+        // Resetear el array de presupuestos a un array vacío
+        const datosLimpios = {
+          presupuestos: [] // Dejar el array vacío
+        };
+
+        // Guardar los datos limpios en la base de datos
+        client.db.set("Templates", datosLimpios).then(function () {
+          console.log("Quotes ha sido limpiado correctamente.");
+        }).catch(function (err) {
+          if (err) {
+            console.error('Error al limpiar quotes - ', err);
+          }
+        });
+      } else {
+        console.error("No se encontró la estructura de datos de Quotes.");
+      }
+    }).catch(function (err) {
+      if (err) {
+        console.error("Currency ID not found. Please verify the currency list and the deal data.", err);
+      }
+    });
+  })
+    .catch(function (err) {
+      if (err) {
+        console.error("Error: ", error);
+      }
+    });
 }
 
 

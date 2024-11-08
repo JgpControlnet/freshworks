@@ -1,4 +1,4 @@
-<html>
+<html lang="es">
 
 <head>
   <script src="{{{appclient}}}"></script>
@@ -11,13 +11,33 @@
 <body>
   <article>
     <section>
+      <h1>Templates</h1>
+      <!-- <input type="file" id="htmlFile" accept=".html"> -->
+      <input type="file" id="zipFileInput" accept=".zip">
+      <button disabled id="buttonTemplate">Añadir plantilla</button>
+    </section>
+    <section>
       <h1>Quotes</h1>
     </section>
-    
+    <p id="noQuotes" class="d-none"><strong>There is no Quotes for this Deal</strong></p>
+    <table id="tabla-presupuestos" style="width: 100%;">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Fecha de Creación</th>
+          <th>Precio</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Las filas de la tabla se agregarán dinámicamente -->
+      </tbody>
+    </table>
+
     <section>
-      <div id="vista-edicion" style="display:none;">
+      <div id="vista-edicion" class="d-none">
         <h2>Editar Producto</h2>
-        <span id="idProducto" style="display: none;"></span>
+        <span id="idPresupuesto" style="display: none;"></span>
         <table id="tabla-edicion">
           <thead>
             <tr>
@@ -36,7 +56,7 @@
         <button class="blueButton mt-10" onclick="volverALista()">Return to the product list</button>
       </div>
 
-      <div id="vista-productos">
+      <div id="vista-productos" class="d-none">
         <h1>Product List</h1>
         <form id="productForm">
           <div class="flexRow">
@@ -53,22 +73,34 @@
               <input class="inputStyle" type="text" id="sku_number" required>
             </div>
             <div class="flexCol">
-              <label for="productPrice">Precio</label>
+              <label for="productPrice">Price</label>
               <input class="inputStyle euroIcon" type="number" id="productPrice" required>
             </div>
             <div class="flexCol">
-              <label for="productQuantity">Cantidad</label>
-              <input class="inputStyle" type="number" id="productQuantity" required>            
+              <label for="productQuantity">Quantity</label>
+              <input class="inputStyle" type="number" id="productQuantity" required>
             </div>
             <button class="blueButton flexRow" type="submit">
               Add Product
-              <svg fill="#fff" width="20px" height="20px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg">
-                <path d="M16 0c-8.836 0-16 7.163-16 16s7.163 16 16 16c8.837 0 16-7.163 16-16s-7.163-16-16-16zM16 30.032c-7.72 0-14-6.312-14-14.032s6.28-14 14-14 14 6.28 14 14-6.28 14.032-14 14.032zM23 15h-6v-6c0-0.552-0.448-1-1-1s-1 0.448-1 1v6h-6c-0.552 0-1 0.448-1 1s0.448 1 1 1h6v6c0 0.552 0.448 1 1 1s1-0.448 1-1v-6h6c0.552 0 1-0.448 1-1s-0.448-1-1-1z"></path>
-            </svg>
+              <svg fill="#fff" width="20px" height="20px" viewBox="0 0 32 32" version="1.1"
+                xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M16 0c-8.836 0-16 7.163-16 16s7.163 16 16 16c8.837 0 16-7.163 16-16s-7.163-16-16-16zM16 30.032c-7.72 0-14-6.312-14-14.032s6.28-14 14-14 14 6.28 14 14-6.28 14.032-14 14.032zM23 15h-6v-6c0-0.552-0.448-1-1-1s-1 0.448-1 1v6h-6c-0.552 0-1 0.448-1 1s0.448 1 1 1h6v6c0 0.552 0.448 1 1 1s1-0.448 1-1v-6h6c0.552 0 1-0.448 1-1s-0.448-1-1-1z">
+                </path>
+              </svg>
             </button>
           </div>
           <hr>
         </form>
+
+        <div class="d-flex flex-row">
+          <label id="labelSearch" for="searchProduct">Search a product</label>
+          <div>
+            <input id="searchProduct" type="search">
+            <div id="productList" style="display: flex;flex-direction: column;position: fixed;overflow-y: scroll;"></div>
+          </div>
+          <button id="searchButton" class="blueButton">Search</button>
+        </div>
 
         <table id="productTable">
           <thead>
@@ -87,17 +119,26 @@
         </table>
         <div class="totales">
           <div class="textoTotal">
-            <h2>Subtotal: <span id="subtotal">0</span> </h2>
+            <h2>Total: <span id="subtotal">0</span> </h2>
             <hr>
-            <h2>Taxes (10%): <span id="taxes">0</span></h2>
-            <hr>
-            <h2>Total: <span id="total">0</span></h2>
           </div>
+        </div>
+
+        <p id="emptyError" class="d-none bold text-red text-end">You must add one product at least.</p>
+        <div class="align-end mt-10">
+          <button class="blueButton" onclick="storeDataStorage()">Create</button>
+        </div>
+        <div class="align-end mt-10">
+          <button class="blueButton" onclick="volverALista()">Return to Quotes</button>
         </div>
         <section class="sectionTitle">
           <div>
             <h3>Custom quotes</h3>
           </div>
+
+
+          <!-- Div donde se mostrará el contenido HTML modificado -->
+          <div id="outputDiv" style="display: none;"></div>
           <div class="quotesFLex">
             <div class="flexRow">
               <label class="labelSingle" for="templateSelect">Choose a template:</label>
@@ -105,16 +146,484 @@
                 <!-- Las opciones se generarán dinámicamente aquí -->
               </select>
             </div>
-            <button class="btn-open blueButton" onclick="createDocumentQuote()">Create new custom quote</button>
+            <button class="btn-open blueButton" onclick="generatePdf()">Download quote as pdf</button>
 
           </div>
         </section>
       </div>
+      <div class="align-end mt-10">
+        <button id="buttonCreate" class="blueButton" onclick="goToCreate()">Create Quote</button>
+      </div>
+
     </section>
   </article>
+
   <p id="content"></p>
 
 </body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
+  integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg=="
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+<script src="https://sdk.amazonaws.com/js/aws-sdk-2.1199.0.min.js"></script>
+
 <script src="scripts/app.js"></script>
+<script>
+
+  // Configuración de AWS (deberías usar tus credenciales de AWS, por ejemplo, IAM Role para el navegador)
+  
+
+  const s3 = new AWS.S3();
+
+
+  // Lista de productos de ejemplo
+  const productos = [
+    { sku: "001", name: "Product 1", description: "Product Description 1", price: "10.00", quantity: "100" },
+    { sku: "002", name: "Product 2", description: "Product Description 2", price: "20.00", quantity: "200" },
+    { sku: "003", name: "Product 3", description: "Product Description 3", price: "30.00", quantity: "300" },
+  ];
+
+  // Función para generar filas de productos
+  function generarFilasProductos(rowTemplate) {
+    let filasHTML = "";
+
+    console.log("ver datos", data);
+    data.presupuesto.forEach(producto => {
+      // Clonar la plantilla de la fila
+      let fila = rowTemplate.cloneNode(true);
+
+      // Reemplazar cada placeholder en las celdas
+      fila.innerHTML = fila.innerHTML.replace(/{{sku}}/g, producto.sku_number)
+        .replace(/{{name}}/g, producto.name)
+        .replace(/{{description}}/g, producto.description)
+        .replace(/{{price}}/g, producto.unit_price)
+        .replace(/{{quantity}}/g, producto.quantity);
+
+      // Añadir la fila generada a la cadena de filas
+      filasHTML += fila.outerHTML;
+    });
+
+    return filasHTML;
+
+    // productos.forEach(producto => {
+    //   // Clonar la plantilla de la fila
+    //   let fila = rowTemplate.cloneNode(true);
+
+    //   // Reemplazar cada placeholder en las celdas
+    //   fila.innerHTML = fila.innerHTML.replace(/{{sku}}/g, producto.sku)
+    //     .replace(/{{name}}/g, producto.name)
+    //     .replace(/{{description}}/g, producto.description)
+    //     .replace(/{{price}}/g, producto.price)
+    //     .replace(/{{quantity}}/g, producto.quantity);
+
+    //   // Añadir la fila generada a la cadena de filas
+    //   filasHTML += fila.outerHTML;
+    // });
+
+    // return filasHTML;
+  }
+
+  async function createTemplate(name, htmlKey) {
+    console.log("key", name);
+    console.log("HTML Key:", htmlKey);
+    const onInit = app.initialized();
+
+    onInit.then(async function (_client) {
+      window.client = _client;
+
+      // Crea el objeto `newTemplate` con las tres propiedades
+      const newTemplate = {
+        name: name,       // Nombre del template
+        value: htmlKey, // HTML sin la imagen en base64
+      };
+
+      client.db.get("Templates").then(
+        function (templatesData) {
+          // Verifica si 'Templates' tiene un array 'templates'
+          if (typeof templatesData === 'object' && Array.isArray(templatesData.templates)) {
+            console.log("Templates exists. Current templates:", templatesData.templates);
+
+            // Añade el nuevo template al array existente
+            templatesData.templates.push(newTemplate);
+
+            // Guarda el objeto actualizado con el nuevo template
+            client.db.set("Templates", templatesData).then(
+              function (response) {
+                console.log("New template added successfully:", response);
+              })
+              .catch(function (err) {
+                console.error('Error - ', err);
+              });
+          } else {
+            // Si 'Templates' no tiene un array 'templates', lo inicializa
+            console.log("Templates does not have a 'templates' array, initializing.");
+            const newTemplates = {
+              templates: [newTemplate] // Nuevo array con el template
+            };
+
+            // Guarda el nuevo objeto
+            client.db.set("Templates", newTemplates).then(
+              function (response) {
+                console.log("Templates initialized and template stored:", response);
+              })
+              .catch(function (err) {
+                console.error('Error - ', err);
+              });
+          }
+          updateTemplateSelector();
+        },
+        function () {
+          // Si 'Templates' no existe, lo crea como un objeto con un array 'templates'
+          console.log("Templates key does not exist, creating it.");
+          const newTemplates = {
+            templates: [newTemplate] // Un array que contiene el nuevo template
+          };
+
+          client.db.set("Templates", newTemplates).then(
+            function (response) {
+              console.log("Templates created and template stored:", response);
+            })
+            .catch(function (err) {
+              console.error('Error - ', err);
+            });
+          updateTemplateSelector();
+        }
+      );
+    });
+  }
+
+
+  //   document.getElementById("zipFileInput").addEventListener("change", async (event) => {
+  //     const file = event.target.files[0];
+
+  //     if (file && file.name.endsWith(".zip")) {
+  //         const jszip = new JSZip();
+
+  //         try {
+  //             // Carga el archivo ZIP
+  //             const zipContent = await jszip.loadAsync(file);
+
+  //             // Obtén el nombre del archivo ZIP sin la extensión
+  //             const zipName = file.name.replace(/\.zip$/, "");
+  //             console.log("Nombre del archivo ZIP sin extensión:", zipName);
+
+  //             let htmlFile = null;
+  //             let imageFile = null;
+
+  //             // Encuentra el archivo HTML y la imagen en el ZIP
+  //             for (const [filename, zipEntry] of Object.entries(zipContent.files)) {
+  //                 if (!zipEntry.dir) {
+  //                     if (filename.endsWith(".html")) {
+  //                         htmlFile = zipEntry; // Guarda la referencia al archivo HTML
+  //                     } else if (filename.endsWith(".png") || filename.endsWith(".jpg") || filename.endsWith(".jpeg")) {
+  //                         imageFile = zipEntry; // Guarda la referencia a la imagen
+  //                     }
+  //                 }
+  //             }
+
+  //             // Verifica que ambos archivos existan en el ZIP
+  //             if (htmlFile && imageFile) {
+  //                 // Convierte la imagen a base64
+  //                 const imageData = await imageFile.async("base64");
+  //                 const mimeType = imageFile.name.endsWith(".png") ? "image/png" : "image/jpeg";
+  //                 const base64Image = `data:${mimeType};base64,${imageData}`;
+
+  //                 // Lee el contenido del HTML como texto
+  //                 let htmlContent = await htmlFile.async("text");
+
+  //                 // Reemplaza la ruta relativa de la imagen con el contenido base64
+  //                 htmlContent = htmlContent.replace(/src="[^"]+\.(png|jpg|jpeg)"/, `src="${base64Image}"`);
+
+  //                 // Muestra el contenido HTML modificado en consola (o úsalo como desees)
+  //                 console.log("Contenido del HTML modificado:", htmlContent);
+
+  //                 // Aquí tienes el `zipName` y el `htmlContent` para usarlos como necesites
+  //                 // Puedes trabajar con estas variables o enviarlas a otra función
+
+  //             } else {
+  //                 console.error("No se encontraron el archivo HTML o la imagen en el ZIP.");
+  //             }
+  //         } catch (error) {
+  //             console.error("Error al procesar el archivo ZIP:", error);
+  //         }
+  //     } else {
+  //         console.error("Por favor, selecciona un archivo ZIP.");
+  //     }
+  // });
+
+
+
+  // // Habilita el botón solo si se selecciona un archivo HTML válido
+  // document.getElementById("htmlFile").addEventListener("change", function (event) {
+  //   const file = event.target.files[0];
+
+  //   // Habilita el botón si el archivo es de tipo HTML
+  //   if (file && file.type === "text/html") {
+  //     document.getElementById("buttonTemplate").disabled = false;
+  //   } else {
+  //     document.getElementById("buttonTemplate").disabled = true;
+  //     alert("Por favor, selecciona un archivo HTML válido.");
+  //   }
+  // });
+
+  document.getElementById("zipFileInput").addEventListener("change", function (event) {
+    const file = event.target.files[0];
+
+    // Habilita el botón si el archivo es de tipo ZIP
+    if (file && (file.type === "application/zip" || file.name.endsWith(".zip"))) {
+      document.getElementById("buttonTemplate").disabled = false;
+    } else {
+      document.getElementById("buttonTemplate").disabled = true;
+      alert("Por favor, selecciona un archivo ZIP válido.");
+    }
+  });
+
+  // Procesa el archivo HTML al hacer clic en el botón
+  document.getElementById("buttonTemplate").addEventListener("click", async () => {
+    const fileInput = document.getElementById("zipFileInput");
+    const file = fileInput.files[0]; // Obtenemos el archivo seleccionado
+
+    if (file && file.name.endsWith(".zip")) {
+      const jszip = new JSZip();
+
+      try {
+        // Carga el archivo ZIP
+        const zipContent = await jszip.loadAsync(file);
+
+        // Obtén el nombre del archivo ZIP sin la extensión
+        const zipName = file.name.replace(/\.zip$/, "");
+
+        let htmlFile = null;
+        let imageFiles = []; // Array para almacenar las imágenes encontradas
+
+        // Encuentra el archivo HTML y las imágenes en el ZIP
+        for (const [filename, zipEntry] of Object.entries(zipContent.files)) {
+          if (!zipEntry.dir) {
+            if (filename.endsWith(".html")) {
+              htmlFile = zipEntry; // Guarda la referencia al archivo HTML
+            } else if (filename.endsWith(".png") || filename.endsWith(".jpg") || filename.endsWith(".jpeg")) {
+              imageFiles.push(zipEntry); // Agrega la imagen al arreglo
+            }
+          }
+        }
+
+        // Verifica que ambos archivos existan en el ZIP
+        if (htmlFile && imageFiles.length > 0) {
+          // Lee el contenido del HTML como texto
+          let htmlContent = await htmlFile.async("text");
+
+          // Creamos un array de promesas para subir todas las imágenes
+          const imageUploadPromises = imageFiles.map(async (imageFile) => {
+            // Convierte la imagen a un buffer (esto nos permite subirla a S3)
+            const imageData = await imageFile.async("arraybuffer");
+
+            // Subir la imagen a S3
+            const s3Params = {
+              Bucket: 'controlnet-develop', // Nombre de tu bucket en S3
+              Key: `freshworks/images/${zipName}_${imageFile.name}`, // Nombre del archivo en S3
+              Body: imageData,
+              ContentType: imageFile.name.endsWith(".png") ? "image/png" : "image/jpeg",
+            };
+
+            // Subir la imagen a S3
+            return new Promise((resolve, reject) => {
+              s3.upload(s3Params, (err, data) => {
+                if (err) {
+                  reject(`Error al subir la imagen ${imageFile.name}: ${err}`);
+                } else {
+                  // Una vez que la imagen se haya subido, obtener la URL
+                  const imageKey = data.Key;
+                  resolve({ imageKey, imageName: imageFile.name });
+                }
+              });
+            });
+          });
+
+          // Esperar a que todas las imágenes sean subidas
+          const imageKeys = await Promise.all(imageUploadPromises);
+
+          // Reemplazar las rutas de las imágenes en el HTML
+          imageKeys.forEach(({ imageKey, imageName }) => {
+            const imageRegex = new RegExp(`src="[^"]*${imageName}"`, "g");
+            htmlContent = htmlContent.replace(imageRegex, `src="${imageKey}"`);
+          });
+
+          // Subir el archivo HTML modificado a S3
+          const htmlS3Params = {
+            Bucket: 'controlnet-develop', // Nombre de tu bucket en S3
+            Key: `freshworks/templates/${zipName}.html`, // Nombre del archivo HTML en S3
+            Body: htmlContent,
+            ContentType: "text/html",
+          };
+
+          // Subimos el archivo HTML modificado
+          s3.upload(htmlS3Params, (err, data) => {
+            if (err) {
+              console.error("Error al subir el archivo HTML a S3", err);
+            } else {
+              // URL pública del archivo HTML
+              const htmlKey = data.key;
+              console.log("Archivo HTML subido exitosamente:", htmlKey);
+              createTemplate(zipName, htmlKey);
+              // Opcional: puedes agregar más lógica aquí si deseas hacer algo con la URL del HTML, como almacenar la URL en una base de datos o mostrarla al usuario.
+            }
+          });
+        } else {
+          console.error("No se encontraron el archivo HTML o las imágenes en el ZIP.");
+        }
+      } catch (error) {
+        console.error("Error al procesar el archivo ZIP:", error);
+      }
+    } else {
+      console.error("Por favor, selecciona un archivo ZIP.");
+    }
+  });
+
+
+
+  async function convertImageToBase64(imgKey) {
+    const s3ParamsImage = {
+      Bucket: 'controlnet-develop',  // Nombre del bucket S3
+      Key: imgKey,                  // La clave de la imagen en S3
+      Expires: 30                   // Tiempo de expiración de la URL (30 segundos)
+    };
+
+    // Obtener la URL pre-firmada para la imagen
+    const imageUrl = s3.getSignedUrl('getObject', s3ParamsImage);
+
+    // Cargar la imagen con un fetch
+    const response = await fetch(imageUrl);
+    const blob = await response.blob();
+
+    // Verificar el tamaño de la imagen antes de convertirla
+    const MAX_SIZE_MB = 2; // Máximo tamaño permitido en MB (ajustar según tus necesidades)
+    const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
+
+    // Si la imagen es demasiado grande, la comprimimos
+    if (blob.size > MAX_SIZE_BYTES) {
+      console.log('La imagen es demasiado grande, comprimiendo...');
+
+      // Comprimir la imagen en un canvas (como antes)
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(blob);
+      img.src = objectUrl;
+
+      await new Promise(resolve => {
+        img.onload = resolve;
+      });
+
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const scaleFactor = 0.5;
+
+      canvas.width = img.width * scaleFactor;
+      canvas.height = img.height * scaleFactor;
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7); // Convertir la imagen comprimida a Base64
+
+      URL.revokeObjectURL(objectUrl);
+
+      return compressedBase64;
+    } else {
+      // Si la imagen no es demasiado grande, simplemente la usamos con la URL temporal generada por S3
+      return imageUrl;
+    }
+  }
+
+
+
+  async function generatePdf() {
+    const selectElement = document.getElementById("templateSelect");
+    const templateName = selectElement.value; // Asume que el value del <option> es el nombre de la plantilla
+
+    try {
+      // Obtener los templates guardados en la base de datos
+      let data = await client.db.get("Templates");
+      console.log("Templates", data);
+
+      // Buscar la plantilla que coincide con el nombre seleccionado
+      let template = data.templates.find(tmp => tmp.name === templateName);
+
+      if (!template) {
+        alert("Plantilla no encontrada.");
+        return;
+      }
+
+      // Obtener la clave del archivo HTML desde la base de datos
+      const htmlFileKey = template.value;  // Este es el nombre del archivo HTML en S3
+
+      // Configurar los parámetros para obtener la URL pre-firmada del archivo HTML
+      const s3ParamsHtml = {
+        Bucket: 'controlnet-develop',  // Nombre de tu bucket S3
+        Key: htmlFileKey,             // Clave del archivo HTML
+        Expires: 30                   // Tiempo de expiración de la URL (30 segundos)
+      };
+
+      // Obtener la URL pre-firmada para el archivo HTML
+      const htmlUrl = s3.getSignedUrl('getObject', s3ParamsHtml);
+      console.log("URL pre-firmada para el archivo HTML:", htmlUrl);
+
+      // Hacer una solicitud HTTP GET a la URL pre-firmada para obtener el contenido HTML
+      const response = await fetch(htmlUrl);
+      if (!response.ok) {
+        throw new Error('No se pudo obtener el archivo HTML desde S3');
+      }
+
+      const content = await response.text(); // El contenido HTML del archivo
+
+      // Parsear el contenido HTML como un documento
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(content, "text/html");
+
+      // Buscar todas las imágenes en el HTML y reemplazar las claves con las URLs pre-firmadas
+      const images = doc.querySelectorAll("img");  // Suponiendo que las imágenes están en etiquetas <img>
+
+      for (let img of images) {
+        const imgKey = img.getAttribute("src");  // Obtener la clave de la imagen (que es el valor de src)
+
+        if (imgKey) {
+          // Configurar los parámetros para obtener la URL pre-firmada de la imagen
+
+
+          // Obtener la URL pre-firmada para la imagen
+          const base64Image = await convertImageToBase64(imgKey);
+          img.setAttribute("src", base64Image);
+
+        }
+      }
+
+      // Buscar todas las filas de la tabla
+      const filas = doc.querySelectorAll("table tr");
+
+      if (filas.length > 1) {
+        // Usamos la segunda fila como plantilla (que contiene los placeholders)
+        const rowTemplate = filas[1];
+
+        // Genera todas las filas de productos
+        const filasProductos = generarFilasProductos(rowTemplate);
+
+        // Insertar las nuevas filas después de la fila de encabezado y eliminar la fila de plantilla
+        rowTemplate.insertAdjacentHTML("afterend", filasProductos);
+        rowTemplate.remove();
+      }
+
+      // Insertar el contenido modificado en el div
+      const outputDiv = document.getElementById("outputDiv");
+      outputDiv.innerHTML = doc.body.innerHTML;
+
+      // Añadir el subtotal al final del documento
+      outputDiv.innerHTML += `<div style="width:100%;text-align:end;">Subtotal: ${document.getElementById("subtotal").innerHTML}</div>`;
+      console.log(outputDiv.innerHTML)
+      createDocumentQuote();
+    } catch (error) {
+      console.error("Error al obtener la plantilla:", error);
+    }
+  }
+
+
+
+
+</script>
 
 </html>

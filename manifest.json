@@ -6,6 +6,10 @@
         "deal_entity_menu": {
           "url": "index.html",
           "icon": "styles/images/document-text-svgrepo-com.svg"
+        },
+        "full_page_app": {
+          "url": "index.html",
+          "icon": "styles/images/document-text-svgrepo-com.svg"
         }
       },
       "requests": {
@@ -14,6 +18,7 @@
         "getContact": {},
         "getAccount": {},
         "getProduct": {},
+        "getProducts": {},
         "createQuote": {},
         "addProductsQuote": {},
         "getDocuments": {},
@@ -24,7 +29,7 @@
     }
   },
   "engines": {
-    "node": "18.18.2",
+    "node": "18.13.0",
     "fdk": "9.2.0"
   }
 }

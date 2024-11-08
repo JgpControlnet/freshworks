@@ -47,6 +47,55 @@ html {
   background: #05253f;
 }
 
+.d-none{
+  display: none;
+}
+.d-block{
+  display: block;
+}
+.d-table{
+  display: table;
+}
+.d-flex{
+  display: flex;
+}
+
+.flex-row{
+  gap: 20px;
+  align-items: center;
+}
+
+#searchProduct{
+  border-radius: 5px;
+  font-weight: bold;
+  font-size: 20px;
+  border: 1px solid black;
+  height: 35px;
+}
+
+#productList{
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  max-height: 80vh; /* Altura máxima en viewport height para controlar el espacio ocupado */
+  overflow-y: auto; /* Activa el desplazamiento si el contenido excede la altura */
+  padding: 10px;
+  border: 1px solid #ddd;
+  background-color: #f0f0f0;
+}
+
+#labelSearch{
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.bold{
+  font-weight: bold;
+}
+.text-red{
+  color: red;
+}
+
 
 article {
   display: flex;
@@ -187,4 +236,10 @@ padding: 5%;
       margin-right: 5%;
     }
   }
+}
+
+.align-end{
+  display: flex;
+  width: 100%;
+  justify-content: end;
 }
